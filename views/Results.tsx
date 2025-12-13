@@ -361,18 +361,6 @@ export const Results: React.FC = () => {
                         ))}
                     </div>
 
-                    {/* Financials */}
-                    <div className="glass-panel p-5 rounded-2xl flex items-center justify-between bg-amber-50/50 border border-amber-100">
-                        <div>
-                            <span className="text-xs font-bold text-amber-700 uppercase">Costo Estimado / Ha</span>
-                            <p className="text-xl font-bold text-amber-900">{detailedReport.fertilization_plan.financials.estimated_cost_per_ha}</p>
-                        </div>
-                        <div className="text-right">
-                            <span className="text-xs font-bold text-amber-700 uppercase">ROI Esperado</span>
-                            <p className="text-xl font-bold text-amber-900">{detailedReport.fertilization_plan.financials.roi_estimated}</p>
-                        </div>
-                    </div>
-
                     {/* Download Plan */}
                     <div className="pt-4 border-t border-primary-200/50">
                         <button
@@ -541,18 +529,6 @@ export const Results: React.FC = () => {
                                         </table>
                                     </div>
                                 ))}
-                            </div>
-
-                            {/* Costs */}
-                            <div className="mt-8 bg-slate-100 p-6 rounded flex justify-between items-center">
-                                <div>
-                                    <h3 className="font-bold text-slate-700">Inversión Estimada</h3>
-                                    <p className="text-sm text-slate-500">Incluye solo fertilizantes base</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-2xl font-bold text-slate-900">{detailedReport.fertilization_plan.financials.estimated_cost_per_ha}</p>
-                                    <p className="text-sm font-bold text-emerald-600">ROI: {detailedReport.fertilization_plan.financials.roi_estimated}</p>
-                                </div>
                             </div>
                         </div>
 
