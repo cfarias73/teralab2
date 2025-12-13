@@ -77,11 +77,15 @@ export const saveCampaign = async (campaign: FieldCampaign): Promise<void> => {
 export const getParcelsWithLatestCampaignStatus = async (): Promise<ParcelSummary[]> => {
   const { data, error } = await supabase
     .from('campaigns')
-    .select('data, app_id, name, status, created_at, parcel_id') // Select parcel_id from top-level column
-    .order('created_at', { ascending: false }); // Order by creation to easily get latest
+    .select('data, app_id, name, status, created_at, parcel_id')
+    .order('created_at', { ascending: false });
 
   if (error) {
     console.error('Error fetching campaigns for parcel summaries:', error.message || error);
+    return [];
+  }
+
+  if (!data) {
     return [];
   }
 

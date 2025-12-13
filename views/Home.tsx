@@ -31,17 +31,28 @@ export const Home: React.FC = () => {
     };
 
     useEffect(() => {
+        let isMounted = true;
+
         const loadData = async () => {
             try {
                 const data = await getParcelsWithLatestCampaignStatus();
-                setParcels(data);
+                if (isMounted) {
+                    setParcels(data);
+                    setLoading(false);
+                }
             } catch (e) {
                 console.error("Failed to load parcels", e);
-            } finally {
-                setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         };
+
         loadData();
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
     return (
@@ -93,8 +104,8 @@ export const Home: React.FC = () => {
                                             </div>
                                         </div>
                                         <div className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase flex-shrink-0 ${parcel.latest_campaign_status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
-                                                parcel.latest_campaign_status === 'in_progress' ? 'bg-amber-100 text-amber-700' :
-                                                    'bg-gray-100 text-gray-600'
+                                            parcel.latest_campaign_status === 'in_progress' ? 'bg-amber-100 text-amber-700' :
+                                                'bg-gray-100 text-gray-600'
                                             }`}>
                                             {parcel.latest_campaign_status === 'completed' ? 'Listo' :
                                                 parcel.latest_campaign_status === 'in_progress' ? 'En Curso' : 'Nuevo'}
@@ -159,8 +170,8 @@ export const Home: React.FC = () => {
                                             }}
                                             disabled={deletingId === parcel.id}
                                             className={`p-1.5 rounded-lg transition-colors ${confirmDeleteId === parcel.id
-                                                    ? 'bg-red-500 text-white hover:bg-red-600'
-                                                    : 'bg-red-50 hover:bg-red-100 text-red-500'
+                                                ? 'bg-red-500 text-white hover:bg-red-600'
+                                                : 'bg-red-50 hover:bg-red-100 text-red-500'
                                                 }`}
                                             title={confirmDeleteId === parcel.id ? 'Confirmar' : 'Eliminar'}
                                         >
