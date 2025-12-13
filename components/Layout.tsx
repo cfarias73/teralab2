@@ -19,7 +19,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
         {/* Header - Glass Effect (Hide on Auth) */}
         {!isAuthPage && (
-          <header className="flex-none glass-panel-dark z-30 relative shadow-sm border-b border-gray-100">
+          <header className="flex-none glass-panel-dark z-30 relative shadow-sm border-b border-gray-100 rounded-b-2xl">
             <div className="flex items-center justify-between p-4">
               <div className="flex items-center space-x-2">
                 <div className="bg-primary-100 p-1.5 rounded-lg border border-primary-200">
@@ -47,7 +47,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
         {/* Mobile Bottom Navigation - Glass Effect (Hide on Auth) */}
         {!isAuthPage && (
-          <nav className="flex-none glass-panel-dark z-30 pb-safe shadow-[0_-2px_10px_rgba(0,0,0,0.06)] border-t border-gray-100">
+          <nav className="flex-none glass-panel-dark z-30 pb-safe shadow-[0_-2px_10px_rgba(0,0,0,0.06)] border-t border-gray-100 rounded-t-2xl">
             <div className="flex justify-around items-center h-16 w-full px-2">
               <NavLink
                 to="/"

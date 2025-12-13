@@ -2,6 +2,7 @@
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Layout } from './components/Layout';
+import { SplashScreen } from './components/SplashScreen';
 import { Home } from './views/Home';
 import { Results } from './views/Results';
 import { History } from './views/History';
@@ -13,18 +14,14 @@ import { Profile } from './views/Profile';
 import { Auth } from './views/Auth';
 import { FieldOverview } from './views/FieldOverview';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
+  // While loading, parent handles splash - just return null
   if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
-        <Loader2 className="animate-spin text-primary-600" size={32} />
-      </div>
-    );
+    return null;
   }
 
   if (!user) {
@@ -33,6 +30,22 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   return <>{children}</>;
 };
+
+// Simple wrapper that shows splash while auth is loading
+function AppContent() {
+  const { loading } = useAuth();
+
+  // Show splash while auth is loading - simple and clean
+  if (loading) {
+    return <SplashScreen message="Iniciando..." />;
+  }
+
+  return (
+    <Layout>
+      <AppRoutes />
+    </Layout>
+  );
+}
 
 function AppRoutes() {
   return (
@@ -58,9 +71,7 @@ function App() {
   return (
     <AuthProvider>
       <HashRouter>
-        <Layout>
-          <AppRoutes />
-        </Layout>
+        <AppContent />
       </HashRouter>
     </AuthProvider>
   );

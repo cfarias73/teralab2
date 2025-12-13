@@ -1,101 +1,108 @@
-
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>AI SoilCheck</title>
-    
-    <!-- Typography -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>AI SoilCheck</title>
+  <link rel="icon" type="image/x-icon" href="/iconoteralab.ico">
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Space Grotesk', 'sans-serif'],
+          },
+          colors: {
+            // Primary Palette (Emeralds)
+            primary: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#16A34A', // Core Brand Color
+              700: '#047857',
+              800: '#065f46',
+              900: '#064E3B', // Dark Text
             },
-            colors: {
-              // Primary Palette (Emeralds)
-              primary: {
-                50: '#ecfdf5',
-                100: '#d1fae5',
-                400: '#34d399',
-                500: '#10b981',
-                600: '#16A34A', // Core Brand Color
-                700: '#047857',
-                800: '#065f46',
-                900: '#064E3B', // Dark Text
-              },
-              // Accent (Amber)
-              accent: {
-                400: '#fbbf24',
-                500: '#F59E0B',
-                600: '#d97706',
-              }
-            },
-            boxShadow: {
-              'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
-              'glass-hover': '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
+            // Accent (Amber)
+            accent: {
+              400: '#fbbf24',
+              500: '#F59E0B',
+              600: '#d97706',
             }
+          },
+          boxShadow: {
+            'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+            'glass-hover': '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
           }
         }
       }
-    </script>
-    <style>
-      /* PWA specific safe-area adjustments */
-      body {
-        overscroll-behavior-y: none;
-        background: linear-gradient(135deg, #ecfdf5 0%, #f0f9ff 50%, #d1fae5 100%);
-        background-attachment: fixed;
-        font-family: 'Inter', sans-serif;
-        color: #064E3B; /* primary-900 */
-      }
-      .safe-pb {
-        padding-bottom: env(safe-area-inset-bottom);
-      }
-      
-      /* Glassmorphism Utilities */
-      .glass-panel {
-        background: rgba(255, 255, 255, 0.65);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.6);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
-      }
-      
-      .glass-panel-dark {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-      }
+    }
+  </script>
+  <style>
+    /* PWA specific safe-area adjustments */
+    body {
+      overscroll-behavior-y: none;
+      background: linear-gradient(135deg, #ecfdf5 0%, #f0f9ff 50%, #d1fae5 100%);
+      background-attachment: fixed;
+      font-family: 'Space Grotesk', sans-serif;
+      color: #064E3B;
+      /* primary-900 */
+    }
 
-      .glass-input {
-        background: rgba(255, 255, 255, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.6);
-        backdrop-filter: blur(4px);
-      }
+    .safe-pb {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
 
-      /* Custom Scrollbar */
-      ::-webkit-scrollbar {
-        width: 6px;
-      }
-      ::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: rgba(6, 78, 59, 0.2);
-        border-radius: 10px;
-      }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <!-- Stripe.js v3 para futuras integraciones de pago -->
-    <script src="https://js.stripe.com/v3/"></script>
+    /* Glassmorphism Utilities */
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+    }
+
+    .glass-panel-dark {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .glass-input {
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(4px);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(6, 78, 59, 0.2);
+      border-radius: 10px;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Stripe.js v3 para futuras integraciones de pago -->
+  <script src="https://js.stripe.com/v3/"></script>
   <script type="importmap">
 {
   "imports": {
@@ -111,10 +118,12 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+  <link rel="stylesheet" href="/index.css">
 </head>
-  <body>
-    <div id="root"></div>
+
+<body>
+  <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>

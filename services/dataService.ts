@@ -260,25 +260,3 @@ export const decrementFreeAnalysisLimit = async (userId: string): Promise<void> 
     console.warn(`Attempted to decrement free analysis limit for user ${userId}, but limit was already 0 or less.`);
   }
 };
-
-
-export const recordSimulatedPayment = async (
-  userId: string,
-  amount: number,
-  currency: string = 'USD'
-): Promise<void> => {
-  const { error } = await supabase
-    .from('payments')
-    .insert({
-      user_id: userId,
-      amount: amount,
-      currency: currency,
-      status: 'succeeded', // Siempre "succeeded" para la simulación
-      // stripe_payment_intent_id: 'simulated_pi_' + Date.now(), // Descomentar para un ID más realista en simulación
-    });
-
-  if (error) {
-    console.error('Error recording simulated payment:', error.message || error);
-    throw new Error('Could not record simulated payment.');
-  }
-};

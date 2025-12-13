@@ -1,5 +1,5 @@
 
-import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback, useRef } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../services/supabaseClient';
 import { UserProfile } from '../types';
@@ -20,6 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const isInitialLoad = useRef(true);
 
   const fetchUserProfile = useCallback(async (userId: string) => {
     try {
@@ -48,6 +49,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [user, fetchUserProfile]);
 
   useEffect(() => {
+    const startTime = Date.now();
+    const MIN_SPLASH_TIME = 2000; // 2 seconds minimum
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -55,10 +59,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (session?.user) {
         fetchUserProfile(session.user.id);
       }
-      setLoading(false);
+
+      // Ensure splash shows for at least MIN_SPLASH_TIME
+      const elapsed = Date.now() - startTime;
+      const remainingTime = Math.max(0, MIN_SPLASH_TIME - elapsed);
+
+      setTimeout(() => {
+        isInitialLoad.current = false;
+        setLoading(false);
+      }, remainingTime);
     });
 
-    // Listen for auth changes
+    // Listen for auth changes (but don't control loading on initial load)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -67,7 +79,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         setUserProfile(null);
       }
-      setLoading(false);
+      // Only set loading false if not initial load (splash already handled it)
+      if (!isInitialLoad.current) {
+        setLoading(false);
+      }
     });
 
     return () => subscription.unsubscribe();
