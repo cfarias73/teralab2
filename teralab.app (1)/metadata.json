@@ -1,0 +1,8 @@
+{
+  "name": "teralab.app",
+  "description": "PWA móvil para el análisis de la salud del suelo utilizando visión artificial agronómica y datos de geolocalización.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
