@@ -122,6 +122,44 @@ export const getCampaignsForParcel = async (parcelId: string): Promise<FieldCamp
   return data.map((row: any) => row.data as FieldCampaign);
 };
 
+export const deleteParcel = async (parcelId: string): Promise<void> => {
+  // First, get all campaigns for this parcel to delete their analyses
+  const { data: campaigns, error: campaignsError } = await supabase
+    .from('campaigns')
+    .select('app_id')
+    .eq('parcel_id', parcelId);
+
+  if (campaignsError) {
+    console.error('Error fetching campaigns for deletion:', campaignsError.message);
+    throw new Error('Error al obtener campañas para eliminar');
+  }
+
+  // Delete all analyses associated with these campaigns
+  if (campaigns && campaigns.length > 0) {
+    const campaignIds = campaigns.map(c => c.app_id);
+    const { error: analysesError } = await supabase
+      .from('analyses')
+      .delete()
+      .in('campaign_id', campaignIds);
+
+    if (analysesError) {
+      console.error('Error deleting analyses:', analysesError.message);
+      throw new Error('Error al eliminar análisis');
+    }
+  }
+
+  // Delete all campaigns for this parcel
+  const { error: deleteCampaignsError } = await supabase
+    .from('campaigns')
+    .delete()
+    .eq('parcel_id', parcelId);
+
+  if (deleteCampaignsError) {
+    console.error('Error deleting campaigns:', deleteCampaignsError.message);
+    throw new Error('Error al eliminar campañas');
+  }
+};
+
 // --- ANALYSES (HISTORIAL) ---
 
 export const getAnalyses = async (): Promise<AnalysisResult[]> => {
@@ -138,19 +176,19 @@ export const getAnalyses = async (): Promise<AnalysisResult[]> => {
 };
 
 export const getAnalysesByCampaign = async (campaignId: string): Promise<AnalysisResult[]> => {
-    // We filter by the JSON field or a column if we indexed it. 
-    // Ideally we store campaign_id in a column, which we did in the SQL.
-    const { data, error } = await supabase
-      .from('analyses')
-      .select('data')
-      .eq('campaign_id', campaignId)
-      .order('created_at', { ascending: false });
-  
-    if (error) {
-      console.error('Error fetching analyses for campaign:', error.message || error);
-      return [];
-    }
-    return data.map((row: any) => row.data as AnalysisResult);
+  // We filter by the JSON field or a column if we indexed it. 
+  // Ideally we store campaign_id in a column, which we did in the SQL.
+  const { data, error } = await supabase
+    .from('analyses')
+    .select('data')
+    .eq('campaign_id', campaignId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching analyses for campaign:', error.message || error);
+    return [];
+  }
+  return data.map((row: any) => row.data as AnalysisResult);
 };
 
 export const saveAnalysis = async (analysis: AnalysisResult, campaignId?: string): Promise<void> => {
@@ -170,8 +208,8 @@ export const saveAnalysis = async (analysis: AnalysisResult, campaignId?: string
 };
 
 export const clearHistory = async (): Promise<void> => {
-    const { error } = await supabase.from('analyses').delete().neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
-    if(error) throw new Error(`Error clearing history: ${error.message || error}`); // Improved error message
+  const { error } = await supabase.from('analyses').delete().neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+  if (error) throw new Error(`Error clearing history: ${error.message || error}`); // Improved error message
 }
 
 // --- PAYMENT LOGIC ---
