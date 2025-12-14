@@ -94,40 +94,43 @@ const PWAInstallModal: React.FC = () => {
                 </div>
 
                 {isIOS ? (
-                    // iOS Instructions
-                    <div className="mt-3 bg-gray-50 rounded-xl p-3">
-                        <p className="text-xs text-gray-600 mb-2">Para instalar en iPhone/iPad:</p>
-                        <div className="flex items-center space-x-2 text-xs text-gray-700">
-                            <div className="flex items-center space-x-1">
-                                <span className="font-medium">1.</span>
-                                <Share size={14} className="text-primary-600" />
-                                <span>Compartir</span>
-                            </div>
-                            <span className="text-gray-400">→</span>
-                            <div className="flex items-center space-x-1">
-                                <span className="font-medium">2.</span>
-                                <PlusSquare size={14} className="text-primary-600" />
-                                <span>Agregar a Inicio</span>
-                            </div>
-                        </div>
+                    // iOS - Try button, show instructions if needed
+                    <div className="mt-3">
+                        <button
+                            onClick={() => {
+                                // iOS doesn't support native install, show instructions
+                                alert('Para instalar:\n1. Toca el botón Compartir (📤)\n2. Selecciona "Agregar a pantalla de inicio"');
+                            }}
+                            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 rounded-xl shadow flex items-center justify-center space-x-2 transition-all active:scale-95"
+                        >
+                            <Download size={18} />
+                            <span>Instalar App</span>
+                        </button>
+                        <p className="text-[10px] text-gray-400 text-center mt-2">
+                            Compartir (📤) → Agregar a Inicio
+                        </p>
                     </div>
-                ) : deferredPrompt ? (
-                    // Android/Chrome - Direct Install Button (native prompt available)
+                ) : (
+                    // Android - Always show button
                     <button
-                        onClick={handleInstall}
+                        onClick={async () => {
+                            if (deferredPrompt) {
+                                await deferredPrompt.prompt();
+                                const { outcome } = await deferredPrompt.userChoice;
+                                if (outcome === 'accepted') {
+                                    setShowModal(false);
+                                }
+                                setDeferredPrompt(null);
+                            } else {
+                                // Fallback if native prompt not available
+                                alert('Para instalar:\nToca el menú (⋮) de tu navegador → "Instalar app" o "Agregar a pantalla de inicio"');
+                            }
+                        }}
                         className="mt-3 w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 rounded-xl shadow flex items-center justify-center space-x-2 transition-all active:scale-95"
                     >
                         <Download size={18} />
                         <span>Instalar App</span>
                     </button>
-                ) : (
-                    // Android fallback - Manual instructions
-                    <div className="mt-3 bg-gray-50 rounded-xl p-3">
-                        <p className="text-xs text-gray-600 mb-2">Para instalar en Android:</p>
-                        <p className="text-xs text-gray-700">
-                            Toca el menú <span className="font-bold">⋮</span> de tu navegador → <span className="font-medium">"Instalar app"</span> o <span className="font-medium">"Agregar a pantalla de inicio"</span>
-                        </p>
-                    </div>
                 )}
             </div>
         </div>
