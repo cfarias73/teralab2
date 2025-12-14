@@ -111,7 +111,7 @@ const PWAInstallModal: React.FC = () => {
                         </p>
                     </div>
                 ) : (
-                    // Android - Always show button
+                    // Android - Direct install only
                     <button
                         onClick={async () => {
                             if (deferredPrompt) {
@@ -121,9 +121,6 @@ const PWAInstallModal: React.FC = () => {
                                     setShowModal(false);
                                 }
                                 setDeferredPrompt(null);
-                            } else {
-                                // Fallback if native prompt not available
-                                alert('Para instalar:\nToca el menú (⋮) de tu navegador → "Instalar app" o "Agregar a pantalla de inicio"');
                             }
                         }}
                         className="mt-3 w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 rounded-xl shadow flex items-center justify-center space-x-2 transition-all active:scale-95"
