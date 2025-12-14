@@ -5,6 +5,7 @@ import { FieldCampaign, SamplingPoint, AnalysisResult } from '../types';
 import { analyzeSoil, generateFieldReport } from '../services/geminiService';
 import { saveCampaign, saveAnalysis, getCampaignById, getTotalAnalysesMade, decrementFreeAnalysisLimit } from '../services/dataService';
 import { createCheckoutSession, recordPaymentSuccess } from '../services/stripeService';
+import { getUserCurrency, convertToLocalCurrency } from '../services/currencyService';
 import { Map, Marker } from 'pigeon-maps';
 import { Camera, CheckCircle, Navigation, ChevronLeft, Loader2, FileText, BrainCircuit, ArrowRight, Save, AlertTriangle, X, CreditCard, MapPin } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -37,12 +38,23 @@ export const Campaign: React.FC = () => {
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [paymentProcessing, setPaymentProcessing] = useState(false);
     const [paymentError, setPaymentError] = useState<string | null>(null);
+    const [localPriceText, setLocalPriceText] = useState<string>('');
 
     // Free Analyses Tracking State
     const [userAnalysesCount, setUserAnalysesCount] = useState<number>(0);
     const [displayFreeAnalysesRemaining, setDisplayFreeAnalysesRemaining] = useState<number | null>(null);
     const [paymentCompleted, setPaymentCompleted] = useState(false);
 
+
+    // Fetch local currency on mount
+    useEffect(() => {
+        getUserCurrency().then(currencyInfo => {
+            if (currencyInfo) {
+                const localPrice = convertToLocalCurrency(PAYMENT_AMOUNT, currencyInfo);
+                setLocalPriceText(localPrice);
+            }
+        });
+    }, []);
 
     useEffect(() => {
         const fetchCampaign = async () => {
@@ -420,17 +432,56 @@ export const Campaign: React.FC = () => {
                 )}
             </div>
 
+            {/* Processing Modal */}
+            {isProcessingBatch && (
+                <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+                    <div className="glass-panel p-8 rounded-2xl w-full max-w-sm text-center">
+                        <div className="relative w-20 h-20 mx-auto mb-6">
+                            <div className="absolute inset-0 rounded-full border-4 border-primary-100"></div>
+                            <div
+                                className="absolute inset-0 rounded-full border-4 border-primary-600 border-t-transparent animate-spin"
+                                style={{ animationDuration: '1s' }}
+                            ></div>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <BrainCircuit className="text-primary-600" size={32} />
+                            </div>
+                        </div>
+
+                        <h3 className="text-xl font-bold text-primary-900 mb-2">Analizando con IA</h3>
+                        <p className="text-sm text-primary-700 mb-4">{processingStatus || 'Iniciando análisis...'}</p>
+
+                        {/* Progress Bar */}
+                        <div className="w-full bg-gray-200 rounded-full h-3 mb-2 overflow-hidden">
+                            <div
+                                className="h-full bg-gradient-to-r from-primary-500 to-emerald-500 rounded-full transition-all duration-500 ease-out"
+                                style={{ width: `${batchProgress}%` }}
+                            ></div>
+                        </div>
+                        <p className="text-xs text-gray-500">{batchProgress}% completado</p>
+
+                        <p className="text-[10px] text-gray-400 mt-4">
+                            Por favor no cierres esta ventana
+                        </p>
+                    </div>
+                </div>
+            )}
+
             {/* Payment Modal */}
             {showPaymentModal && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-in fade-in">
-                    <div className="glass-panel p-6 rounded-2xl w-full max-w-sm text-center relative animate-in zoom-in-95">
+                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6">
+                    <div className="glass-panel p-6 rounded-2xl w-full max-w-[340px] text-center relative animate-in zoom-in-95">
                         <button onClick={() => setShowPaymentModal(false)} className="absolute top-3 right-3 p-1.5 rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200"><X size={16} /></button>
 
                         <div className="bg-primary-100 p-3 rounded-full inline-block mb-4">
                             <CreditCard size={32} className="text-primary-600" />
                         </div>
                         <h3 className="text-xl font-bold text-primary-900 mb-2">Pago Requerido</h3>
-                        <p className="text-sm text-primary-700 mb-4">Se requiere un pago de <span className="font-bold text-lg text-primary-800">US${PAYMENT_AMOUNT.toFixed(2)}</span> para realizar este análisis.</p>
+                        <p className="text-sm text-primary-700 mb-1">
+                            Se requiere un pago de <span className="font-bold text-lg text-primary-800">US${PAYMENT_AMOUNT.toFixed(2)}</span> para realizar este análisis.
+                        </p>
+                        {localPriceText && (
+                            <p className="text-xs text-gray-500 mb-4">{localPriceText}</p>
+                        )}
 
                         {paymentError && (
                             <div className="bg-red-50 text-red-700 text-xs p-2 rounded-lg mb-4 flex items-center justify-center">
