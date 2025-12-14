@@ -382,9 +382,12 @@ export const Results: React.FC = () => {
                 {detailedReport && (
                     <div className="p-8 text-slate-800">
                         <div className="flex justify-between items-center border-b-2 border-primary-600 pb-4 mb-6">
-                            <div>
-                                <h1 className="text-3xl font-bold text-primary-800">AI SoilCheck</h1>
-                                <p className="text-sm text-slate-500">Informe de Análisis de Suelo</p>
+                            <div className="flex items-center space-x-3">
+                                <img src="/logo.png" alt="teralab.app" className="w-10 h-10 object-contain" />
+                                <div>
+                                    <h1 className="text-3xl font-bold text-primary-800">teralab.app</h1>
+                                    <p className="text-sm text-slate-500">Informe de Análisis de Suelo</p>
+                                </div>
                             </div>
                             <div className="text-right">
                                 <p className="font-bold text-slate-800">{detailedReport.parcel_info.date.split('T')[0]}</p>
@@ -454,7 +457,7 @@ export const Results: React.FC = () => {
                         </div>
 
                         <div className="mt-12 pt-4 border-t border-slate-200 text-center">
-                            <p className="text-xs text-slate-400">Generado por AI SoilCheck. Documento 1 de 2.</p>
+                            <p className="text-xs text-slate-400">Generado por teralab.app. Documento 1 de 2.</p>
                         </div>
                     </div>
                 )}
@@ -533,7 +536,7 @@ export const Results: React.FC = () => {
                         </div>
 
                         <div className="absolute bottom-0 w-full text-center pb-4 text-[10px] text-slate-400">
-                            Generado por AI SoilCheck - Documento 2 de 2
+                            Generado por teralab.app - Documento 2 de 2
                         </div>
                     </div>
                 )}

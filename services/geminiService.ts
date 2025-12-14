@@ -9,7 +9,7 @@ const fileToGenerativePart = async (file: File) => {
     reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
     reader.readAsDataURL(file);
   });
-  
+
   return {
     inlineData: {
       data: await base64EncodedDataPromise,
@@ -29,7 +29,9 @@ export const analyzeSoil = async (
   notes: string,
 ): Promise<AnalysisResult> => {
 
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+  console.log('[DEBUG] API Key present:', !!apiKey, 'Length:', apiKey?.length, 'Starts with:', apiKey?.substring(0, 8));
+  const ai = new GoogleGenAI({ apiKey });
   const geodata: GeoDataContext = await fetchGeoData(lat, lon, crop);
 
   const systemInstruction = `
@@ -76,8 +78,8 @@ ESQUEMA JSON:
       model: "gemini-2.5-flash",
       contents: {
         parts: [
-          surfacePart, 
-          profilePart, 
+          surfacePart,
+          profilePart,
           { text: "Analiza este punto de muestreo." }
         ]
       },
@@ -90,11 +92,11 @@ ESQUEMA JSON:
 
     const jsonText = response.text;
     if (!jsonText) throw new Error("No response from AI");
-    
+
     const result = JSON.parse(jsonText) as AnalysisResult;
     result.timestamp = new Date().toISOString();
     result.geodata_context = geodata;
-    result.original_input = { parcelName, crop, notes, location: { lat, lon, accuracy } }; 
+    result.original_input = { parcelName, crop, notes, location: { lat, lon, accuracy } };
     return result;
 
   } catch (error) {
@@ -104,33 +106,33 @@ ESQUEMA JSON:
 };
 
 export const generateFieldReport = async (campaign: FieldCampaign, analyses: AnalysisResult[]): Promise<FieldAnalysisReport> => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    
-    // Determine Stage Context for the Prompt
-    const stage = campaign.parcel.stage || 'production';
-    const stageDescription = stage === 'preparation' 
-        ? "ETAPA DE PREPARACIÓN DE SUELO: El cultivo aún NO está establecido o está en siembra. Enfócate en fertilización de fondo, corrección de pH y estructura del suelo."
-        : "ETAPA DE PRODUCCIÓN / CULTIVO ESTABLECIDO: El cultivo está creciendo. Enfócate en fertilización de mantenimiento, corrección foliar y fertirriego.";
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GOOGLE_API_KEY });
 
-    // Aggregate data for the prompt
-    const inputData = {
-        parcel: campaign.parcel,
-        stage: stage,
-        zones: campaign.zones,
-        points: campaign.points.length,
-        analyses: analyses.map(a => ({
-            id: a.id,
-            zone: campaign.zones.find(z => z.id === campaign.points.find(p => p.analysis_result_id === a.id)?.zone_id)?.name,
-            texture: a.texture.class,
-            compaction: a.compaction.level,
-            salinity: a.salinity.severity,
-            ph: a.estimated_pH.class,
-            ndvi: a.satellite_indicators.ndvi,
-            recommendations: a.recommendations.map(r => r.action)
-        }))
-    };
+  // Determine Stage Context for the Prompt
+  const stage = campaign.parcel.stage || 'production';
+  const stageDescription = stage === 'preparation'
+    ? "ETAPA DE PREPARACIÓN DE SUELO: El cultivo aún NO está establecido o está en siembra. Enfócate en fertilización de fondo, corrección de pH y estructura del suelo."
+    : "ETAPA DE PRODUCCIÓN / CULTIVO ESTABLECIDO: El cultivo está creciendo. Enfócate en fertilización de mantenimiento, corrección foliar y fertirriego.";
 
-    const systemInstruction = `
+  // Aggregate data for the prompt
+  const inputData = {
+    parcel: campaign.parcel,
+    stage: stage,
+    zones: campaign.zones,
+    points: campaign.points.length,
+    analyses: analyses.map(a => ({
+      id: a.id,
+      zone: campaign.zones.find(z => z.id === campaign.points.find(p => p.analysis_result_id === a.id)?.zone_id)?.name,
+      texture: a.texture.class,
+      compaction: a.compaction.level,
+      salinity: a.salinity.severity,
+      ph: a.estimated_pH.class,
+      ndvi: a.satellite_indicators.ndvi,
+      recommendations: a.recommendations.map(r => r.action)
+    }))
+  };
+
+  const systemInstruction = `
     Eres un Consultor Agrónomo Senior y Especialista en IA. Genera un INFORME GLOBAL DE CAMPO JSON.
     
     Datos de Entrada: ${JSON.stringify(inputData)}
@@ -229,29 +231,29 @@ export const generateFieldReport = async (campaign: FieldCampaign, analyses: Ana
     }
     `;
 
-    try {
-        const response = await ai.models.generateContent({
-            model: "gemini-3-pro-preview",
-            contents: [{ text: "Generar Informe Global de Campo con Plan de Fertilización" }],
-            config: {
-                systemInstruction: systemInstruction,
-                responseMimeType: "application/json",
-            }
-        });
-        const report = JSON.parse(response.text || "{}");
-        report.generated_at = new Date().toISOString();
-        return report;
-    } catch (e) {
-        console.error("Field Report Gen Failed", e);
-        throw e;
-    }
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-pro-preview",
+      contents: [{ text: "Generar Informe Global de Campo con Plan de Fertilización" }],
+      config: {
+        systemInstruction: systemInstruction,
+        responseMimeType: "application/json",
+      }
+    });
+    const report = JSON.parse(response.text || "{}");
+    report.generated_at = new Date().toISOString();
+    return report;
+  } catch (e) {
+    console.error("Field Report Gen Failed", e);
+    throw e;
+  }
 };
 
 export const generateDetailedReport = async (
   analysisResult: AnalysisResult,
 ): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GOOGLE_API_KEY });
+
   const { geodata_context, original_input } = analysisResult;
   const systemInstruction = `
     Genera un informe agronómico COMPLETO en formato JSON.
@@ -308,25 +310,25 @@ export const generateDetailedReport = async (
       }
     }
   `;
-  
+
   try {
-      const response = await ai.models.generateContent({
-        model: "gemini-3-pro-preview",
-        contents: [{ text: "Generar reporte detallado y plan de fertilización." }],
-        config: {
-            systemInstruction: systemInstruction,
-            responseMimeType: "application/json",
-        }
-      });
-      return response.text || "{}";
-  } catch(e) {
-      // Fallback simple
-      return JSON.stringify({
-          parcel_info: { date: new Date().toISOString(), parcel_name: original_input.parcelName },
-          executive_summary: analysisResult.summary_text,
-          physical_properties: [{parameter: "Textura", value: analysisResult.texture.class}],
-          chemical_properties: [{parameter: "pH Estimado", value: analysisResult.estimated_pH.class}],
-          recommendations: analysisResult.recommendations.map(r => ({action: r.action, priority: r.priority, details: r.rationale}))
-      });
+    const response = await ai.models.generateContent({
+      model: "gemini-3-pro-preview",
+      contents: [{ text: "Generar reporte detallado y plan de fertilización." }],
+      config: {
+        systemInstruction: systemInstruction,
+        responseMimeType: "application/json",
+      }
+    });
+    return response.text || "{}";
+  } catch (e) {
+    // Fallback simple
+    return JSON.stringify({
+      parcel_info: { date: new Date().toISOString(), parcel_name: original_input.parcelName },
+      executive_summary: analysisResult.summary_text,
+      physical_properties: [{ parameter: "Textura", value: analysisResult.texture.class }],
+      chemical_properties: [{ parameter: "pH Estimado", value: analysisResult.estimated_pH.class }],
+      recommendations: analysisResult.recommendations.map(r => ({ action: r.action, priority: r.priority, details: r.rationale }))
+    });
   }
 };

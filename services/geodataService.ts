@@ -6,24 +6,24 @@ import { GeoDataContext, Parcel, Zone, SamplingPoint } from '../types';
 export const calculatePolygonArea = (coords: [number, number][]): number => {
   let area = 0;
   if (coords.length < 3) return 0;
-  
+
   // Simple approximation for small areas (converting lat/lon to meters roughly)
   const R = 6371000; // Earth radius
   const toRad = (x: number) => x * Math.PI / 180;
-  
+
   for (let i = 0; i < coords.length; i++) {
     const j = (i + 1) % coords.length;
     const p1 = coords[i];
     const p2 = coords[j];
-    
+
     const x1 = toRad(p1[1]) * R * Math.cos(toRad(p1[0]));
     const y1 = toRad(p1[0]) * R;
     const x2 = toRad(p2[1]) * R * Math.cos(toRad(p2[0]));
     const y2 = toRad(p2[0]) * R;
-    
+
     area += (x1 * y2) - (x2 * y1);
   }
-  
+
   return Math.abs(area / 2) / 10000; // Convert sq meters to hectares
 };
 
@@ -54,7 +54,7 @@ export const delineateZones = (parcel: Parcel): Zone[] => {
   // Here we mock 2-3 zones based on area size.
   const zones: Zone[] = [];
   const count = parcel.area_hectares > 5 ? 3 : 2;
-  
+
   const types = [
     { name: 'Zona A - Alto Vigor', char: 'NDVI Alto, Suelo Profundo', color: '#10b981' }, // Green
     { name: 'Zona B - Vigor Medio', char: 'NDVI Medio, Pendiente Leve', color: '#f59e0b' }, // Amber
@@ -76,23 +76,23 @@ export const delineateZones = (parcel: Parcel): Zone[] => {
 
 // Distance between two points in meters (Haversine approximation for small distances)
 const distanceMeters = (p1: [number, number], p2: [number, number]) => {
-  const R = 6371e3; 
-  const φ1 = p1[0] * Math.PI/180;
-  const φ2 = p2[0] * Math.PI/180;
-  const Δφ = (p2[0]-p1[0]) * Math.PI/180;
-  const Δλ = (p2[1]-p1[1]) * Math.PI/180;
+  const R = 6371e3;
+  const φ1 = p1[0] * Math.PI / 180;
+  const φ2 = p2[0] * Math.PI / 180;
+  const Δφ = (p2[0] - p1[0]) * Math.PI / 180;
+  const Δλ = (p2[1] - p1[1]) * Math.PI / 180;
 
-  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-          Math.cos(φ1) * Math.cos(φ2) *
-          Math.sin(Δλ/2) * Math.sin(Δλ/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) *
+    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   return R * c;
 }
 
 export const generateSamplingPoints = (parcel: Parcel, zones: Zone[]): SamplingPoint[] => {
   const points: SamplingPoint[] = [];
-  
+
   // 1. Calculate bounding box
   let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
   parcel.boundary.forEach(p => {
@@ -104,28 +104,28 @@ export const generateSamplingPoints = (parcel: Parcel, zones: Zone[]): SamplingP
 
   // 2. Generate Grid Candidates (more regular distribution)
   // Grid step ~ 30 meters
-  const latStep = 0.00027; 
+  const latStep = 0.00027;
   const lonStep = 0.00027;
 
   const candidates: [number, number][] = [];
-  
+
   for (let lat = minLat; lat <= maxLat; lat += latStep) {
-      for (let lon = minLon; lon <= maxLon; lon += lonStep) {
-          // 3. Filter: Inside Polygon
-          if (isPointInPolygon([lat, lon], parcel.boundary)) {
-              // 4. Filter: Edge Buffer (Avoid points too close to boundary ~15m)
-              let tooClose = false;
-              // Simplified check: if polygon has many points, this is expensive, 
-              // but for manual drawing it's fine.
-              for (let b of parcel.boundary) {
-                  if (distanceMeters([lat, lon], b) < 15) {
-                      tooClose = true;
-                      break;
-                  }
-              }
-              if (!tooClose) candidates.push([lat, lon]);
+    for (let lon = minLon; lon <= maxLon; lon += lonStep) {
+      // 3. Filter: Inside Polygon
+      if (isPointInPolygon([lat, lon], parcel.boundary)) {
+        // 4. Filter: Edge Buffer (Avoid points too close to boundary ~15m)
+        let tooClose = false;
+        // Simplified check: if polygon has many points, this is expensive, 
+        // but for manual drawing it's fine.
+        for (let b of parcel.boundary) {
+          if (distanceMeters([lat, lon], b) < 15) {
+            tooClose = true;
+            break;
           }
+        }
+        if (!tooClose) candidates.push([lat, lon]);
       }
+    }
   }
 
   // 5. Assign candidates to zones (Mock: Spatial Split)
@@ -133,45 +133,45 @@ export const generateSamplingPoints = (parcel: Parcel, zones: Zone[]): SamplingP
   candidates.sort((a, b) => b[0] - a[0]); // Descending Lat
 
   const zoneChunks = Math.ceil(candidates.length / zones.length);
-  
+
   let pointCounter = 1;
 
   zones.forEach((zone, zIdx) => {
-      // Get candidates for this "zone" slice
-      const start = zIdx * zoneChunks;
-      const end = start + zoneChunks;
-      const zoneCandidates = candidates.slice(start, end);
+    // Get candidates for this "zone" slice
+    const start = zIdx * zoneChunks;
+    const end = start + zoneChunks;
+    const zoneCandidates = candidates.slice(start, end);
 
-      // Select N points uniformly from this zone's candidates
-      const needed = zone.recommended_points;
-      
-      if (zoneCandidates.length > 0) {
-          // Simple uniform stride selection
-          const step = Math.max(1, Math.floor(zoneCandidates.length / needed));
-          
-          for (let i = 0; i < needed; i++) {
-              const candidateIndex = (i * step) % zoneCandidates.length;
-              const coord = zoneCandidates[candidateIndex];
-              
-              points.push({
-                  id: `sp-${Date.now()}-${pointCounter}`,
-                  zone_id: zone.id,
-                  parcel_id: parcel.id,
-                  lat: coord[0],
-                  lon: coord[1],
-                  label: `P-${String(pointCounter).padStart(2, '0')}`,
-                  status: 'pending'
-              });
-              pointCounter++;
-          }
+    // Select N points uniformly from this zone's candidates
+    const needed = zone.recommended_points;
+
+    if (zoneCandidates.length > 0) {
+      // Simple uniform stride selection
+      const step = Math.max(1, Math.floor(zoneCandidates.length / needed));
+
+      for (let i = 0; i < needed; i++) {
+        const candidateIndex = (i * step) % zoneCandidates.length;
+        const coord = zoneCandidates[candidateIndex];
+
+        points.push({
+          id: `sp-${Date.now()}-${pointCounter}`,
+          zone_id: zone.id,
+          parcel_id: parcel.id,
+          lat: coord[0],
+          lon: coord[1],
+          label: `P-${String(pointCounter).padStart(2, '0')}`,
+          status: 'pending'
+        });
+        pointCounter++;
       }
+    }
   });
 
   return points;
 };
 
 // AgroMonitoring API Key
-const AGROMONITORING_API_KEY = process.env.VITE_AGROMONITORING_API_KEY;
+const AGROMONITORING_API_KEY = import.meta.env.VITE_AGROMONITORING_API_KEY;
 
 // Helper to calculate a small bounding box for a point (approx. 100x100m)
 const getPolygonBoundingBox = (lat: number, lon: number, sizeMeters: number = 100) => {
@@ -230,9 +230,9 @@ const createOrGetAgroMonitoringPolygon = async (lat: number, lon: number): Promi
       // So, if it failed but returned a polygon ID, we can still use it.
       // However, if the error is serious, we throw.
       if (response.status === 409 && errorBody.polygon && errorBody.polygon.id) {
-          // Sometimes 409 comes with existing polygon in body, but not consistently
-          // Safer to just try to fetch history if we know the external_id exists.
-          // For MVP, we rely on the POST returning the ID even on upsert.
+        // Sometimes 409 comes with existing polygon in body, but not consistently
+        // Safer to just try to fetch history if we know the external_id exists.
+        // For MVP, we rely on the POST returning the ID even on upsert.
       } else {
         throw new Error(`AgroMonitoring Polygon API error: ${response.statusText}`);
       }
@@ -267,27 +267,27 @@ const fetchAgroMonitoringNDVI = async (polygonId: string): Promise<any> => {
     const response = await fetch(ndviHistoryUrl);
 
     if (!response.ok) {
-        const errorBody = await response.json();
-        throw new Error(`AgroMonitoring NDVI API error: ${response.statusText} - ${JSON.stringify(errorBody)}`);
+      const errorBody = await response.json();
+      throw new Error(`AgroMonitoring NDVI API error: ${response.statusText} - ${JSON.stringify(errorBody)}`);
     }
-    
+
     const ndviData = await response.json();
-    
+
     if (ndviData.length > 0) {
       // Sort by date (dt is unix timestamp) to get the latest
       ndviData.sort((a: any, b: any) => b.dt - a.dt);
-      
+
       const latestNdv = ndviData[0].ndvi;
-      
+
       // Calculate a simple average for the recent historical mean
       const sumNdv = ndviData.reduce((sum: number, entry: any) => sum + entry.ndvi, 0);
       const averageNdv = ndviData.length > 0 ? sumNdv / ndviData.length : latestNdv;
-      
+
       const anomaly = latestNdv - averageNdv;
 
       return {
         current: latestNdv,
-        historical_mean: averageNdv, 
+        historical_mean: averageNdv,
         anomaly: anomaly,
         source: "AgroMonitoring Sentinel-2"
       };
@@ -332,8 +332,8 @@ export const fetchGeoData = async (lat: number, lon: number, crop: string): Prom
     const getSoilProperty = (property: string, depth: string) => {
       try {
         const value = soilgridsJson.properties.find((p: any) => p.property === property)
-                       .depths.find((d: any) => d.label === depth)
-                       .values.mean;
+          .depths.find((d: any) => d.label === depth)
+          .values.mean;
         // SoilGrids values are often scaled (e.g., clay in g/kg * 10). Adjust for common units.
         // pH is also scaled by 10
         return value / 10;
@@ -432,13 +432,13 @@ export const fetchGeoData = async (lat: number, lon: number, crop: string): Prom
         }
       }
     }
-    
+
     // Adjusted 3-day sum logic to be relative to the *end* of the fetched `past_days` data, if `todayIndex` is found.
     // If todayIndex is -1 (e.g. data for today not yet available or full 30 days not fetched), fallback.
     const lastFetchedDayIndex = dailyData.time.length - 1;
-    const precip3dSum = (dailyData.precipitation_sum && lastFetchedDayIndex !== -1) 
-        ? (dailyData.precipitation_sum.slice(Math.max(0, lastFetchedDayIndex - 2), lastFetchedDayIndex + 1).reduce((a: number, b: number) => a + b, 0)).toFixed(1) 
-        : 0.0;
+    const precip3dSum = (dailyData.precipitation_sum && lastFetchedDayIndex !== -1)
+      ? (dailyData.precipitation_sum.slice(Math.max(0, lastFetchedDayIndex - 2), lastFetchedDayIndex + 1).reduce((a: number, b: number) => a + b, 0)).toFixed(1)
+      : 0.0;
 
 
     precipitationData = {
@@ -462,7 +462,7 @@ export const fetchGeoData = async (lat: number, lon: number, crop: string): Prom
     const elevationRes = await fetch(elevationUrl);
     if (!elevationRes.ok) throw new Error(`Open-Meteo Elevation API error: ${elevationRes.statusText}`);
     const elevationJson = await elevationRes.json();
-    
+
     elevationData = {
       elevation: elevationJson.elevation?.[0] ? elevationJson.elevation[0].toFixed(0) : 0,
       slope_pct: (Math.random() * 15).toFixed(1), // Keep slope simulated for now as it needs more complex DEM processing
@@ -491,13 +491,13 @@ export const fetchGeoData = async (lat: number, lon: number, crop: string): Prom
   }
 
 
-  return { 
-    lat, 
-    lon, 
-    soilgrids: soilgridsData, 
-    precipitation: precipitationData, 
+  return {
+    lat,
+    lon,
+    soilgrids: soilgridsData,
+    precipitation: precipitationData,
     ndvi: ndviData, // Use fetched NDVI data
-    dem: elevationData, 
-    crop_hint: crop 
+    dem: elevationData,
+    crop_hint: crop
   };
 };

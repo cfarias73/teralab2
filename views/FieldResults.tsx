@@ -312,9 +312,12 @@ export const FieldResults: React.FC = () => {
             <div id="pdf-field-report" style={{ display: 'none', width: '210mm', minHeight: '297mm', background: 'white', fontFamily: 'Inter, sans-serif' }}>
                 <div className="p-8 text-slate-800">
                     <div className="flex justify-between items-center border-b-2 border-primary-600 pb-4 mb-6">
-                        <div>
-                            <h1 className="text-3xl font-bold text-primary-800">AI SoilCheck</h1>
-                            <p className="text-sm text-slate-500">Informe Global de Campo</p>
+                        <div className="flex items-center space-x-3">
+                            <img src="/logo.png" alt="teralab.app" className="w-10 h-10 object-contain" />
+                            <div>
+                                <h1 className="text-3xl font-bold text-primary-800">teralab.app</h1>
+                                <p className="text-sm text-slate-500">Informe Global de Campo</p>
+                            </div>
                         </div>
                         <div className="text-right">
                             <p className="font-bold text-slate-800">{new Date(campaign.last_updated).toISOString().split('T')[0]}</p>
@@ -357,7 +360,7 @@ export const FieldResults: React.FC = () => {
                     </table>
 
                     <div className="mt-12 pt-4 border-t border-slate-200 text-center">
-                        <p className="text-xs text-slate-400">Generado por AI SoilCheck. Documento Global 1 de 2.</p>
+                        <p className="text-xs text-slate-400">Generado por teralab.app. Documento Global 1 de 2.</p>
                     </div>
                 </div>
             </div>
@@ -367,9 +370,12 @@ export const FieldResults: React.FC = () => {
                     <div className="relative h-full">
                         <div className="bg-emerald-700 text-white p-8">
                             <div className="flex justify-between items-start">
-                                <div>
-                                    <h1 className="text-2xl font-bold uppercase tracking-wide">Programa de Fertirriego (Lote)</h1>
-                                    <p className="text-emerald-200 mt-1 text-lg">{campaign.parcel.crop} | Etapa Productiva</p>
+                                <div className="flex items-center space-x-3">
+                                    <img src="/logo.png" alt="teralab.app" className="w-10 h-10 object-contain bg-white/20 rounded p-1" />
+                                    <div>
+                                        <h1 className="text-2xl font-bold uppercase tracking-wide">Programa de Fertirriego</h1>
+                                        <p className="text-emerald-200 mt-1 text-lg">{campaign.parcel.crop} | Etapa Productiva</p>
+                                    </div>
                                 </div>
                                 <div className="text-right">
                                     <div className="bg-white/20 p-2 rounded backdrop-blur-md">
@@ -431,7 +437,7 @@ export const FieldResults: React.FC = () => {
                         </div>
 
                         <div className="absolute bottom-0 w-full text-center pb-4 text-[10px] text-slate-400">
-                            Generado por AI SoilCheck - Documento Global 2 de 2
+                            Generado por teralab.app - Documento Global 2 de 2
                         </div>
                     </div>
                 )}
