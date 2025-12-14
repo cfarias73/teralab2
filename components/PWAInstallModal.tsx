@@ -111,8 +111,8 @@ const PWAInstallModal: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                ) : (
-                    // Android/Chrome - Direct Install Button
+                ) : deferredPrompt ? (
+                    // Android/Chrome - Direct Install Button (native prompt available)
                     <button
                         onClick={handleInstall}
                         className="mt-3 w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 rounded-xl shadow flex items-center justify-center space-x-2 transition-all active:scale-95"
@@ -120,6 +120,14 @@ const PWAInstallModal: React.FC = () => {
                         <Download size={18} />
                         <span>Instalar App</span>
                     </button>
+                ) : (
+                    // Android fallback - Manual instructions
+                    <div className="mt-3 bg-gray-50 rounded-xl p-3">
+                        <p className="text-xs text-gray-600 mb-2">Para instalar en Android:</p>
+                        <p className="text-xs text-gray-700">
+                            Toca el menú <span className="font-bold">⋮</span> de tu navegador → <span className="font-medium">"Instalar app"</span> o <span className="font-medium">"Agregar a pantalla de inicio"</span>
+                        </p>
+                    </div>
                 )}
             </div>
         </div>
