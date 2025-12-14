@@ -15,7 +15,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     <div className="flex flex-col h-screen font-sans bg-gray-100 items-center justify-center">
 
       {/* Mobile Container Simulation */}
-      <div className="w-full h-full max-w-[380px] bg-white shadow-2xl flex flex-col relative overflow-hidden sm:rounded-xl sm:h-[95vh] sm:border sm:border-gray-200">
+      <div className="w-full h-full max-w-[420px] bg-white shadow-2xl flex flex-col relative overflow-hidden sm:rounded-xl sm:h-[95vh] sm:border sm:border-gray-200">
 
         {/* Header - Glass Effect (Hide on Auth) */}
         {!isAuthPage && (

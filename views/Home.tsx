@@ -190,7 +190,7 @@ export const Home: React.FC = () => {
             </section>
 
             {/* FAB: Add Field */}
-            <div className="fixed bottom-24 z-20 w-full max-w-[380px] left-1/2 -translate-x-1/2 px-4 pointer-events-none flex justify-end">
+            <div className="fixed bottom-24 z-20 w-full max-w-[420px] left-1/2 -translate-x-1/2 px-4 pointer-events-none flex justify-end">
                 <button
                     onClick={() => navigate('/field-editor')}
                     className="w-14 h-14 flex items-center justify-center bg-primary-600 text-white rounded-full shadow-lg hover:bg-primary-500 hover:shadow-xl transition-all active:scale-95 pointer-events-auto"

@@ -8,7 +8,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ message = "Cargando 
     return (
         <div className="fixed inset-0 bg-gray-100 flex items-center justify-center z-50">
             {/* Mobile Container - matches app width */}
-            <div className="w-full h-full max-w-[380px] bg-gradient-to-b from-primary-900 via-primary-800 to-primary-950 flex flex-col items-center justify-center relative sm:rounded-xl sm:h-[95vh] sm:shadow-2xl">
+            <div className="w-full h-full max-w-[420px] bg-gradient-to-b from-primary-900 via-primary-800 to-primary-950 flex flex-col items-center justify-center relative sm:rounded-xl sm:h-[95vh] sm:shadow-2xl">
 
                 {/* Logo Container */}
                 <div className="relative mb-8 animate-in zoom-in duration-700">
