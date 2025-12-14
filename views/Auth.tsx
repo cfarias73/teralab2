@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../services/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { Leaf, Mail, Lock, User, ArrowRight, Loader2, AlertCircle, CheckCircle, KeyRound } from 'lucide-react';
+import PWAInstallModal from '../components/PWAInstallModal';
 
 type AuthMode = 'signin' | 'signup' | 'forgot_password' | 'reset_password';
 
@@ -250,6 +251,9 @@ export const Auth: React.FC = () => {
       <p className="mt-8 text-xs text-primary-800/60 font-medium">
         TeraLab AI © 2024
       </p>
+
+      {/* PWA Install Modal */}
+      <PWAInstallModal />
     </div>
   );
 };
