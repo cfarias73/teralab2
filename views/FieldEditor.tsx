@@ -5,7 +5,8 @@ import { Parcel, FieldCampaign, Zone, SamplingPoint } from '../types';
 import { calculatePolygonArea, calculateCentroid, delineateZones, generateSamplingPoints, isPointInPolygon } from '../services/geodataService';
 import { saveCampaign, getCampaigns } from '../services/dataService';
 import { Save, Upload, Square, Trash2, Sprout, Leaf, ArrowLeft, Layers, MapPin, RefreshCw, PenTool, Tractor, TrendingUp, X, Loader2 } from 'lucide-react';
-import { PolygonLayer, LineStringLayer } from '../components/MapLayers'; // Import from new file
+import { PolygonLayer, LineStringLayer } from '../components/MapLayers';
+import { useAuth } from '../contexts/AuthContext';
 
 const satelliteProvider = (x: number, y: number, z: number) => {
     return `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
@@ -13,6 +14,7 @@ const satelliteProvider = (x: number, y: number, z: number) => {
 
 export const FieldEditor: React.FC = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
 
     // Existing Data State
     const [existingCampaigns, setExistingCampaigns] = useState<FieldCampaign[]>([]);
@@ -253,6 +255,14 @@ export const FieldEditor: React.FC = () => {
                 global_analysis: currentCampaign?.global_analysis
             };
 
+            // If not authenticated, save to localStorage and redirect to auth
+            if (!user) {
+                localStorage.setItem('pendingCampaign', JSON.stringify(campaignToSave));
+                navigate('/auth');
+                return;
+            }
+
+            // If authenticated, save normally to Supabase
             await saveCampaign(campaignToSave);
             navigate('/');
         } catch (e: any) {

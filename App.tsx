@@ -52,8 +52,11 @@ function AppRoutes() {
     <Routes>
       <Route path="/auth" element={<Auth />} />
 
-      <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-      <Route path="/field-editor" element={<ProtectedRoute><FieldEditor /></ProtectedRoute>} />
+      {/* Public routes - No auth required */}
+      <Route path="/" element={<Home />} />
+      <Route path="/field-editor" element={<FieldEditor />} />
+
+      {/* Protected routes - Auth required */}
       <Route path="/field/:parcelId" element={<ProtectedRoute><FieldOverview /></ProtectedRoute>} />
       <Route path="/campaign/:id" element={<ProtectedRoute><Campaign /></ProtectedRoute>} />
       <Route path="/field-results/:id" element={<ProtectedRoute><FieldResults /></ProtectedRoute>} />

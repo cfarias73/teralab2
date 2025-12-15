@@ -4,6 +4,7 @@ import { supabase } from '../services/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { Leaf, Mail, Lock, User, ArrowRight, Loader2, AlertCircle, CheckCircle, KeyRound } from 'lucide-react';
 import PWAInstallModal from '../components/PWAInstallModal';
+import { saveCampaign } from '../services/dataService';
 
 type AuthMode = 'signin' | 'signup' | 'forgot_password' | 'reset_password';
 
@@ -44,6 +45,18 @@ export const Auth: React.FC = () => {
       if (mode === 'signin') {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+
+        // Check for pending campaign and migrate it
+        const pendingCampaign = localStorage.getItem('pendingCampaign');
+        if (pendingCampaign) {
+          try {
+            await saveCampaign(JSON.parse(pendingCampaign));
+            localStorage.removeItem('pendingCampaign');
+          } catch (e) {
+            console.error('Error migrating pending campaign:', e);
+          }
+        }
+
         navigate('/');
       } else if (mode === 'signup') {
         const { error } = await supabase.auth.signUp({
