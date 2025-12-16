@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { Layout } from './components/Layout';
 import { SplashScreen } from './components/SplashScreen';
 import { Home } from './views/Home';
@@ -75,6 +76,7 @@ function App() {
     <AuthProvider>
       <HashRouter>
         <AppContent />
+        <Analytics />
       </HashRouter>
     </AuthProvider>
   );
