@@ -51,6 +51,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const startTime = Date.now();
     const MIN_SPLASH_TIME = 2000; // 2 seconds minimum
+    const MAX_SPLASH_TIME = 8000; // 8 seconds maximum - safety timeout
+
+    // Safety timeout to prevent hanging forever
+    const safetyTimeout = setTimeout(() => {
+      console.warn('[Auth] Safety timeout - forcing splash to close');
+      isInitialLoad.current = false;
+      setLoading(false);
+    }, MAX_SPLASH_TIME);
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -65,9 +73,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const remainingTime = Math.max(0, MIN_SPLASH_TIME - elapsed);
 
       setTimeout(() => {
+        clearTimeout(safetyTimeout); // Cancel safety timeout
         isInitialLoad.current = false;
         setLoading(false);
       }, remainingTime);
+    }).catch((error) => {
+      console.error('[Auth] getSession failed:', error);
+      clearTimeout(safetyTimeout);
+      isInitialLoad.current = false;
+      setLoading(false);
     });
 
     // Listen for auth changes (but don't control loading on initial load)
@@ -85,7 +99,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(safetyTimeout);
+    };
   }, [fetchUserProfile]);
 
   const signOut = async () => {
