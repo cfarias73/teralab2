@@ -74,7 +74,7 @@ export const FieldOverview: React.FC = () => {
     if (loading || !parcel) {
         return (
             <div className="p-8 text-center flex flex-col items-center justify-center h-full">
-                <Loader2 className="animate-spin mb-2 text-primary-600"/>
+                <Loader2 className="animate-spin mb-2 text-primary-600" />
                 Cargando Campo...
             </div>
         );
@@ -99,24 +99,24 @@ export const FieldOverview: React.FC = () => {
 
             {/* Map Context */}
             <div className="h-1/3 w-full relative">
-                <Map 
+                <Map
                     width={370} // Added required width prop
                     height={300} // Added required height prop
                     center={parcel.centroid} zoom={14} provider={satelliteProvider}>
                     {/* Display parcel boundary */}
                     {parcel.boundary.length > 2 && (
-                        <PolygonLayer 
-                            coords={parcel.boundary} 
-                            color="#16A34A" 
-                            fillOpacity={0.3} 
+                        <PolygonLayer
+                            coords={parcel.boundary}
+                            color="#16A34A"
+                            fillOpacity={0.3}
                         />
                     )}
                     {/* Display points from the latest in_progress or completed campaign */}
                     {latestCampaign?.points.map(p => (
-                        <Marker 
-                            key={p.id} 
-                            anchor={[p.lat, p.lon]} 
-                            color={p.status === 'sampled' ? '#10b981' : '#f59e0b'} 
+                        <Marker
+                            key={p.id}
+                            anchor={[p.lat, p.lon]}
+                            color={p.status === 'sampled' ? '#10b981' : '#f59e0b'}
                             width={30}
                         />
                     ))}
@@ -127,7 +127,7 @@ export const FieldOverview: React.FC = () => {
             <div className="flex-grow overflow-y-auto p-4 space-y-4 pb-24">
                 {/* Start New Analysis Button / Resume if in progress */}
                 {!hasInProgressCampaign ? (
-                    <button 
+                    <button
                         onClick={handleStartNewAnalysis}
                         disabled={isCreatingCampaign}
                         className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg flex items-center justify-center space-x-2 transition-all active:scale-95 disabled:opacity-70"
@@ -160,7 +160,7 @@ export const FieldOverview: React.FC = () => {
                 ) : (
                     <div className="space-y-3">
                         {campaigns.map(camp => (
-                            <div 
+                            <div
                                 key={camp.id}
                                 onClick={() => camp.status === 'completed' ? navigate(`/field-results/${camp.id}`) : navigate(`/campaign/${camp.id}`)}
                                 className="glass-panel p-4 rounded-xl cursor-pointer hover:bg-white/60 transition-all active:scale-[0.98]"
@@ -168,7 +168,7 @@ export const FieldOverview: React.FC = () => {
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center space-x-3">
                                         <div className={`p-2.5 rounded-lg ${camp.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                                            {camp.status === 'completed' ? <FileText size={20}/> : <Sprout size={20}/>}
+                                            {camp.status === 'completed' ? <FileText size={20} /> : <Sprout size={20} />}
                                         </div>
                                         <div>
                                             <h4 className="font-bold text-primary-900 text-sm">Campaña {new Date(camp.created_at).toLocaleDateString()}</h4>
@@ -177,19 +177,18 @@ export const FieldOverview: React.FC = () => {
                                             </p>
                                         </div>
                                     </div>
-                                    <div className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${
-                                        camp.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
-                                        camp.status === 'in_progress' ? 'bg-amber-100 text-amber-700' :
-                                        'bg-gray-100 text-gray-600'
-                                    }`}>
+                                    <div className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${camp.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
+                                            camp.status === 'in_progress' ? 'bg-amber-100 text-amber-700' :
+                                                'bg-gray-100 text-gray-600'
+                                        }`}>
                                         {camp.status === 'completed' ? 'Completado' : camp.status === 'in_progress' ? 'En Progreso' : 'Planificación'}
                                     </div>
                                 </div>
-                                
+
                                 {camp.status === 'completed' && camp.global_analysis && (
                                     <div className="mt-2 text-xs text-primary-700 flex items-center space-x-2">
-                                        <Activity size={12} className="text-primary-500"/>
-                                        <span>Salud: {camp.global_analysis.field_summary.health_classification}</span>
+                                        <Activity size={12} className="text-primary-500" />
+                                        <span>Salud: {camp.global_analysis.executive_summary?.overall_health || camp.global_analysis.field_summary?.health_classification || 'N/A'}</span>
                                     </div>
                                 )}
                             </div>

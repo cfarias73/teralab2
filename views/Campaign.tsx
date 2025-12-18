@@ -33,6 +33,34 @@ export const Campaign: React.FC = () => {
     const [isProcessingBatch, setIsProcessingBatch] = useState(false);
     const [batchProgress, setBatchProgress] = useState(0);
     const [processingStatus, setProcessingStatus] = useState('');
+    const [processingHint, setProcessingHint] = useState('');
+
+    // Rotating hints for processing modal
+    const processingHints = [
+        "🛰️ Consultando imágenes satelitales...",
+        "🔬 Analizando textura del suelo...",
+        "💧 Evaluando balance hídrico...",
+        "🌱 Calculando potencial de nutrientes...",
+        "📊 Procesando datos de SoilGrids...",
+        "🤖 Generando recomendaciones con IA...",
+        "📈 Creando plan de fertilización...",
+        "🌾 Optimizando para tu cultivo..."
+    ];
+
+    // Rotate hints every 3 seconds during processing
+    useEffect(() => {
+        if (!isProcessingBatch) return;
+
+        let hintIndex = 0;
+        setProcessingHint(processingHints[0]);
+
+        const interval = setInterval(() => {
+            hintIndex = (hintIndex + 1) % processingHints.length;
+            setProcessingHint(processingHints[hintIndex]);
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [isProcessingBatch]);
 
     // Payment Wall State
     const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -436,31 +464,53 @@ export const Campaign: React.FC = () => {
             {isProcessingBatch && (
                 <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
                     <div className="glass-panel p-8 rounded-2xl w-full max-w-sm text-center">
-                        <div className="relative w-20 h-20 mx-auto mb-6">
+                        <div className="relative w-24 h-24 mx-auto mb-6">
+                            {/* Outer rotating ring */}
                             <div className="absolute inset-0 rounded-full border-4 border-primary-100"></div>
                             <div
                                 className="absolute inset-0 rounded-full border-4 border-primary-600 border-t-transparent animate-spin"
                                 style={{ animationDuration: '1s' }}
                             ></div>
+                            {/* Inner pulsing ring */}
+                            <div
+                                className="absolute inset-2 rounded-full border-2 border-emerald-400 border-b-transparent animate-spin"
+                                style={{ animationDuration: '1.5s', animationDirection: 'reverse' }}
+                            ></div>
                             <div className="absolute inset-0 flex items-center justify-center">
-                                <BrainCircuit className="text-primary-600" size={32} />
+                                <BrainCircuit className="text-primary-600 animate-pulse" size={36} />
                             </div>
                         </div>
 
                         <h3 className="text-xl font-bold text-primary-900 mb-2">Analizando con IA</h3>
-                        <p className="text-sm text-primary-700 mb-4">{processingStatus || 'Iniciando análisis...'}</p>
+                        <p className="text-sm text-primary-700 mb-2 min-h-[20px]">{processingStatus || 'Iniciando análisis...'}</p>
+
+                        {/* Rotating Hint */}
+                        <p className="text-xs text-emerald-600 mb-4 min-h-[20px] transition-all duration-300">
+                            {processingHint}
+                        </p>
 
                         {/* Progress Bar */}
                         <div className="w-full bg-gray-200 rounded-full h-3 mb-2 overflow-hidden">
                             <div
-                                className="h-full bg-gradient-to-r from-primary-500 to-emerald-500 rounded-full transition-all duration-500 ease-out"
-                                style={{ width: `${batchProgress}%` }}
+                                className="h-full bg-gradient-to-r from-primary-500 via-emerald-500 to-primary-500 rounded-full transition-all duration-500 ease-out animate-pulse"
+                                style={{ width: `${Math.max(batchProgress, 5)}%` }}
                             ></div>
                         </div>
-                        <p className="text-xs text-gray-500">{batchProgress}% completado</p>
+                        <p className="text-xs text-gray-500 mb-4">{batchProgress}% completado</p>
 
-                        <p className="text-[10px] text-gray-400 mt-4">
-                            Por favor no cierres esta ventana
+                        {/* Time Warning Box */}
+                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
+                            <p className="text-xs text-amber-800 font-medium flex items-center justify-center">
+                                <AlertTriangle size={14} className="mr-1.5 flex-shrink-0" />
+                                Este proceso toma entre 1-2 minutos
+                            </p>
+                            <p className="text-[10px] text-amber-600 mt-1">
+                                Estamos consultando satélites, bases de datos de suelos y generando tu reporte personalizado.
+                            </p>
+                        </div>
+
+                        <p className="text-[10px] text-gray-400">
+                            ⚠️ Mantén la pantalla encendida y no cierres la app
                         </p>
                     </div>
                 </div>

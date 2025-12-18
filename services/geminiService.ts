@@ -108,136 +108,368 @@ ESQUEMA JSON:
 export const generateFieldReport = async (campaign: FieldCampaign, analyses: AnalysisResult[]): Promise<FieldAnalysisReport> => {
   const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GOOGLE_API_KEY });
 
-  // Determine Stage Context for the Prompt
+  // Determine Stage Context
   const stage = campaign.parcel.stage || 'production';
-  const stageDescription = stage === 'preparation'
-    ? "ETAPA DE PREPARACIÓN DE SUELO: El cultivo aún NO está establecido o está en siembra. Enfócate en fertilización de fondo, corrección de pH y estructura del suelo."
-    : "ETAPA DE PRODUCCIÓN / CULTIVO ESTABLECIDO: El cultivo está creciendo. Enfócate en fertilización de mantenimiento, corrección foliar y fertirriego.";
+  const currentMonth = new Date().getMonth();
+  const season = currentMonth >= 4 && currentMonth <= 9 ? 'Temporada de Lluvias' : 'Temporada Seca';
 
-  // Aggregate data for the prompt
-  const inputData = {
-    parcel: campaign.parcel,
-    stage: stage,
+  // Aggregate comprehensive data for the prompt
+  const comprehensiveInput = {
+    // Field Context
+    field: {
+      name: campaign.parcel.name,
+      crop: campaign.parcel.crop,
+      stage: stage,
+      area_ha: campaign.parcel.area_hectares,
+      centroid: campaign.parcel.centroid,
+      season: season,
+      analysis_date: new Date().toISOString()
+    },
     zones: campaign.zones,
-    points: campaign.points.length,
-    analyses: analyses.map(a => ({
+    total_sample_points: campaign.points.length,
+
+    // Detailed analysis from each point
+    point_analyses: analyses.map(a => ({
       id: a.id,
       zone: campaign.zones.find(z => z.id === campaign.points.find(p => p.analysis_result_id === a.id)?.zone_id)?.name,
-      texture: a.texture.class,
-      compaction: a.compaction.level,
-      salinity: a.salinity.severity,
-      ph: a.estimated_pH.class,
-      ndvi: a.satellite_indicators.ndvi,
-      recommendations: a.recommendations.map(r => r.action)
+      location: a.original_input?.location,
+
+      // Physical Properties (from visual AI)
+      texture: a.texture,
+      compaction: a.compaction,
+      surface_crusting: a.surface_crusting,
+
+      // Chemical Properties
+      organic_matter: a.organic_matter,
+      estimated_pH: a.estimated_pH,
+      salinity: a.salinity,
+
+      // Biological Indicators
+      fauna_presence: a.fauna_presence,
+
+      // Satellite Data
+      satellite: a.satellite_indicators,
+
+      // Moisture
+      moisture: a.moisture_level,
+
+      // Erosion
+      erosion: a.erosion_signs,
+
+      // Geodata Context (SoilGrids, Climate, etc)
+      geodata: a.geodata_context,
+
+      // Original recommendations per point
+      point_recommendations: a.recommendations
     }))
   };
 
   const systemInstruction = `
-    Eres un Consultor Agrónomo Senior y Especialista en IA. Genera un INFORME GLOBAL DE CAMPO JSON.
-    
-    Datos de Entrada: ${JSON.stringify(inputData)}
-    
-    CONTEXTO CRÍTICO:
-    Cultivo: ${campaign.parcel.crop}
-    ${stageDescription}
-    
-    REQUISITOS ESTRICTOS:
-    1. Integra datos de satélite + visuales + geodata de cada punto.
-    2. Compara puntos vs promedios de zona.
-    3. Detecta anomalías y zonas de expansión de problemas (salinidad, compactación).
-    4. Genera un plan de acción a 30, 90 y 365 días.
-    5. GENERA UN PLAN DE FERTILIZACIÓN COMPLETO adaptado a la etapa (${stage}).
-    
-    ESQUEMA DE SALIDA (JSON):
-    {
-      "field_summary": {
-        "area_ha": number,
-        "variability_index": number (0-100),
-        "dominant_soil": string,
-        "dominant_issues": string[],
-        "health_classification": "excellent"|"good"|"fair"|"poor"|"critical",
-        "moisture_classification": string,
-        "salinity_risk": string
-      },
-      "zones": [
-        { 
-          "zone_id": string (match input zone IDs),
-          "area_ha": number,
-          "dominant_texture": string,
-          "dominant_issues": string[],
-          "variability_score": number,
-          "ndvi_avg": number,
-          "summary_text": string,
-          "recommendations_zone": [ { "type": string, "priority": string, "action": string, "rationale": string } ]
-        }
-      ],
-      "heatmaps_summary": {
-        "ndvi_variability": string,
-        "moisture_variability": string,
-        "salinity_distribution": string,
-        "compaction_distribution": string
-      },
-      "field_problems_ranked": [
-        {
-          "problem": string,
-          "severity": number (0-100),
-          "location": string,
-          "cause": string,
-          "recommended_actions": string[]
-        }
-      ],
-      "global_recommendations": {
-        "zones_specific": {},
-        "field_wide": {}
-      },
-      "action_plan": {
-        "30_days": [ { "priority": string, "action": string, "benefit": string } ],
-        "90_days": [],
-        "365_days": []
-      },
-      "fertilization_plan": {
-         "program_name": "string (ej. Programa Fertirriego)",
-         "fertilizer_composition": {
-             "name": "string (ej. Fórmula NPK)",
-             "macro_n": "string", "macro_p": "string", "macro_k": "string",
-             "micro_elements": "string"
-         },
-         "stages": [
-            {
-               "stage_name": "string",
-               "total_days_range": "string",
-               "objective": "string",
-               "activities": [
-                  {
-                     "days_range": "string",
-                     "action": "string",
-                     "product": "string",
-                     "dosage": "string",
-                     "method": "string",
-                     "notes": "string"
-                  }
-               ]
-            }
-         ],
-         "financials": {
-             "estimated_cost_per_ha": "string",
-             "currency": "MXN",
-             "roi_estimated": "string"
-         },
-         "important_notes": ["string"]
-      },
-      "final_summary_text": string,
-      "confidence_overall": number
+Eres un CONSULTOR AGRÓNOMO SENIOR especializado en Agricultura de Precisión con más de 20 años de experiencia.
+Tu tarea es generar un INFORME TÉCNICO INTEGRAL basado en el cruce de múltiples fuentes de datos.
+
+=== DATOS DE ENTRADA ===
+${JSON.stringify(comprehensiveInput, null, 2)}
+
+=== CONTEXTO DEL CAMPO ===
+- Cultivo: ${campaign.parcel.crop}
+- Etapa: ${stage === 'preparation' ? 'PREPARACIÓN DE SUELO (pre-siembra)' : 'PRODUCCIÓN (cultivo establecido)'}
+- Época del Año: ${season}
+- Área Total: ${campaign.parcel.area_hectares} hectáreas
+
+=== INSTRUCCIONES DE ANÁLISIS ===
+
+Debes generar un informe que integre los siguientes 6 PILARES DE ANÁLISIS:
+
+1. ANÁLISIS DE SALUD FÍSICA Y ESTRUCTURAL
+   - Diagnóstico de Compactación Multicapa: Cruza imagen de perfil + densidad aparente de SoilGrids
+   - Evaluación de Macro-porosidad: Analiza estructura granular vs. masiva
+   - Estabilidad Superficial: Detecta encostramiento correlacionado con precipitación reciente
+   - Textura Híbrida: Valida textura visual vs. datos históricos SoilGrids
+
+2. BALANCE HÍDRICO Y DINÁMICA DEL AGUA
+   - Reserva de Agua Útil: Integra textura + materia orgánica + profundidad efectiva
+   - Riesgo Infiltración/Escorrentía: Pendiente (DEM) + textura + intensidad lluvias
+   - Déficit de Humedad Crítico: ET0 vs. precipitación acumulada 30 días
+   - Drenaje Edafocuático: Evalúa moteados en perfil (saturación prolongada)
+
+3. POTENCIAL QUÍMICO Y BIOLÓGICO
+   - Materia Orgánica Dinámica: Color Munsell vs. Carbono Orgánico SoilGrids
+   - Zonificación de Fertilidad: NDVI histórico + propiedades físico-químicas
+   - Disponibilidad de Nutrientes por pH: SoilGrids pH + presencia visual sales/carbonatos
+   - Actividad Biológica: Fauna edáfica detectada (lombrices, galerías)
+
+4. VIGILANCIA DE RIESGOS AGRONÓMICOS
+   - Erosión Activa: Surcos/cárcavas visuales + pendiente + cobertura NDVI
+   - Salinidad Estacional: Eflorescencias + alta evaporación + baja precipitación
+   - Lixiviación: Suelos arenosos + alta precipitación reciente = pérdida de N
+
+5. ANÁLISIS ESTRATÉGICO POR ETAPA DEL CULTIVO
+   ${stage === 'preparation' ? `
+   - Ajuste de Siembra: Profundidad y densidad según humedad + textura
+   - Fertilización de Fondo: NPK base + corrección de pH
+   - Preparación Mecánica: "Punto de sazón" óptimo para maquinaria` : `
+   - Fertilización de Cobertera: Dosis N según NDVI actual vs. potencial del suelo
+   - Fertirriego Optimizado: Calendario por etapa fenológica
+   - Correcciones Foliares: Micronutrientes según deficiencias detectadas`}
+
+6. ANÁLISIS TEMPORAL Y COMPARATIVO
+   - Anomalías de Vigor: NDVI actual vs. promedio histórico época/cultivo
+   - Evolución Estacional: Cambios humedad/estructura según temporada (${season})
+
+=== INSTRUCCIONES ESPECIALES PARA FERTILIZACIÓN Y RIEGO ===
+
+**PROGRAMA DE FERTILIZACIÓN (OBLIGATORIO):**
+- SIEMPRE genera el programa completo del ciclo del cultivo, independientemente de la etapa actual.
+- Incluye TODAS las etapas fenológicas: Pre-siembra, Siembra, Emergencia-V6, V6-Floración, Floración-Llenado, Madurez.
+- Para cada etapa especifica: días desde siembra (0-7, 15-30, 30-60, 60-90, 90-120), producto, dosis/ha, método.
+- Añade notas específicas para cultivo de temporal (sin riego) en cada aplicación.
+
+**RECOMENDACIONES DE RIEGO (OBLIGATORIO):**
+- Evalúa disponibilidad de agua según precipitación de los últimos 30 días y contexto regional.
+- Genera DOS escenarios:
+  1. CON RIEGO: Frecuencia, volumen, etapas críticas, compatibilidad con fertirriego.
+  2. TEMPORAL (secano): Estrategias de conservación de humedad, mulching, fechas óptimas de siembra según lluvias históricas, mitigación de sequía.
+- Si los datos de precipitación indican zona seca o semi-árida, prioriza las recomendaciones de temporal.
+
+=== ESQUEMA JSON DE SALIDA (ESTRICTO) ===
+{
+  "report_metadata": {
+    "generated_at": "ISO datetime",
+    "field_name": "string",
+    "crop": "string",
+    "stage": "string",
+    "season": "string",
+    "area_ha": number,
+    "sample_points_analyzed": number,
+    "location": { "lat": number, "lon": number }
+  },
+  
+  "executive_summary": {
+    "overall_health": "excellent|good|fair|poor|critical",
+    "soil_type_dominant": "string",
+    "main_conclusion": "string (2-3 oraciones resumen ejecutivo)",
+    "immediate_actions_required": ["string"],
+    "confidence_score": number (0-100)
+  },
+  
+  "physical_structural_analysis": {
+    "compaction_diagnosis": {
+      "level": "none|low|moderate|severe",
+      "affected_layers": "string",
+      "evidence": "string",
+      "impact_on_roots": "string"
+    },
+    "macroporosity": {
+      "rating": "excellent|good|limited|poor",
+      "structure_type": "string (granular, blocky, massive)",
+      "gas_exchange_capacity": "string"
+    },
+    "surface_stability": {
+      "crusting_present": boolean,
+      "cause": "string",
+      "infiltration_impact": "string"
+    },
+    "texture_validation": {
+      "visual_class": "string",
+      "soilgrids_class": "string",
+      "confidence": "string",
+      "discrepancy_notes": "string"
     }
-    `;
+  },
+  
+  "water_dynamics_analysis": {
+    "available_water_capacity": {
+      "estimate_mm": "string",
+      "rating": "high|medium|low",
+      "factors": "string"
+    },
+    "infiltration_runoff_risk": {
+      "risk_level": "low|moderate|high",
+      "slope_factor": "string",
+      "texture_factor": "string",
+      "recent_rainfall_impact": "string"
+    },
+    "moisture_deficit": {
+      "current_status": "adequate|moderate_stress|severe_stress",
+      "et0_vs_precipitation": "string",
+      "irrigation_recommendation": "string"
+    },
+    "drainage_assessment": {
+      "status": "well_drained|moderately_drained|poorly_drained",
+      "waterlogging_signs": boolean,
+      "evidence": "string"
+    }
+  },
+  
+  "chemical_biological_analysis": {
+    "organic_matter": {
+      "estimated_level": "very_low|low|medium|high",
+      "visual_munsell_correlation": "string",
+      "soilgrids_soc": "string",
+      "improvement_potential": "string"
+    },
+    "fertility_zonation": {
+      "zones_identified": [
+        {
+          "zone_name": "string",
+          "fertility_class": "high|medium|low",
+          "ndvi_indicator": number,
+          "limiting_factors": ["string"]
+        }
+      ]
+    },
+    "nutrient_availability": {
+      "ph_class": "string",
+      "ph_effect_on_nutrients": "string",
+      "salts_carbonates_visual": "string",
+      "key_nutrient_constraints": ["string"]
+    },
+    "biological_activity": {
+      "indicators_found": ["string"],
+      "soil_health_rating": "excellent|good|fair|poor",
+      "regenerative_potential": "string"
+    }
+  },
+  
+  "agronomic_risks": {
+    "erosion_risk": {
+      "level": "none|low|moderate|high|severe",
+      "type": "string (laminar, surcos, cárcavas)",
+      "visual_evidence": "string",
+      "contributing_factors": ["string"],
+      "mitigation": "string"
+    },
+    "salinity_alert": {
+      "present": boolean,
+      "severity": "none|low|moderate|severe",
+      "seasonal_pattern": "string",
+      "affected_area_pct": "string"
+    },
+    "leaching_susceptibility": {
+      "risk": "low|moderate|high",
+      "nitrogen_loss_concern": "string",
+      "management_advice": "string"
+    }
+  },
+  
+  "strategic_crop_analysis": {
+    "current_stage": "string",
+    "stage_specific_recommendations": [
+      {
+        "category": "string",
+        "recommendation": "string",
+        "timing": "string",
+        "expected_benefit": "string"
+      }
+    ],
+    "mechanical_operations": {
+      "soil_workability": "optimal|acceptable|not_recommended",
+      "compaction_risk_from_machinery": "string",
+      "best_timing_window": "string"
+    }
+  },
+  
+  "temporal_comparison": {
+    "ndvi_anomaly": {
+      "current_vs_historical": "string",
+      "interpretation": "string"
+    },
+    "seasonal_profile_evolution": "string"
+  },
+  
+  "zones_detailed": [
+    {
+      "zone_id": "string",
+      "zone_name": "string",
+      "area_ha": number,
+      "dominant_texture": "string",
+      "ndvi_avg": number,
+      "health_score": number,
+      "key_issues": ["string"],
+      "zone_summary": "string",
+      "specific_recommendations": ["string"]
+    }
+  ],
+  
+  "problems_ranked": [
+    {
+      "problem": "string",
+      "severity_score": number (0-100),
+      "location": "string",
+      "root_cause": "string",
+      "data_sources_used": ["string"],
+      "recommended_actions": ["string"],
+      "urgency": "immediate|short_term|medium_term"
+    }
+  ],
+  
+  "action_plan": {
+    "immediate_30_days": [
+      { "priority": "critical|high|medium", "action": "string", "expected_result": "string", "cost_estimate": "string" }
+    ],
+    "short_term_90_days": [],
+    "annual_365_days": []
+  },
+  
+  "fertilization_plan": {
+    "program_name": "string (ej: Programa Nutrición Maíz Ciclo Completo)",
+    "adapted_to_stage": "string",
+    "water_regime": "string (irrigated|rainfed|mixed - detectar según datos de precipitación y lógica regional)",
+    "base_formula": {
+      "npk_ratio": "string (ej: 18-46-0 + Urea posterior)",
+      "nitrogen_source": "string",
+      "phosphorus_source": "string",
+      "potassium_source": "string",
+      "micronutrients": "string"
+    },
+    "application_schedule": [
+      {
+        "phase": "string (Pre-siembra/Siembra, Emergencia-V6, V6-Floración, Floración-Llenado, Madurez)",
+        "days_from_start": "string (ej: 0-7 días, 15-30 días, 30-60 días, 60-90 días)",
+        "product": "string",
+        "dosage_per_ha": "string",
+        "application_method": "string (incorporado, banda, foliar, fertirriego, voleo)",
+        "objective": "string",
+        "notes_rainfed": "string (ajuste si es temporal sin riego - ej: aplicar antes de lluvia esperada, reducir dosis N)"
+      }
+    ],
+    "total_cost_per_ha": "string (estimado en MXN)",
+    "expected_roi": "string",
+    "special_notes": ["string"]
+  },
+  
+  "irrigation_recommendations": {
+    "water_availability_assessment": "string (basado en precipitación histórica y actual)",
+    "scenario_irrigated": {
+      "frequency": "string",
+      "volume_per_application": "string",
+      "critical_stages": ["string"],
+      "fertirriego_compatible": boolean
+    },
+    "scenario_rainfed": {
+      "strategy": "string (ej: captación de agua de lluvia, mulching, labranza conservacionista)",
+      "moisture_conservation_tips": ["string"],
+      "drought_mitigation": "string",
+      "planting_date_recommendation": "string (ventana óptima según lluvias históricas)"
+    },
+    "deficit_irrigation_advice": "string (si hay agua limitada)"
+  },
+  
+  "final_integrated_summary": "string (un párrafo conclusivo que integre todas las fuentes de datos y dé la recomendación final más importante)",
+  
+  "confidence_overall": number (0-100)
+}
+`;
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-pro-preview",
-      contents: [{ text: "Generar Informe Global de Campo con Plan de Fertilización" }],
+      model: "gemini-2.5-flash",
+      contents: [{ text: "Genera el Informe Técnico Integral de Campo según el esquema especificado." }],
       config: {
         systemInstruction: systemInstruction,
         responseMimeType: "application/json",
+        temperature: 0.3
       }
     });
     const report = JSON.parse(response.text || "{}");

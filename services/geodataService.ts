@@ -215,7 +215,8 @@ const createOrGetAgroMonitoringPolygon = async (lat: number, lon: number): Promi
   };
 
   try {
-    const response = await fetch(`https://api.agromonitoring.com/agro/1.0/polygons?appid=${AGROMONITORING_API_KEY}`, {
+    // Adding duplicated=true allows the API to return the existing polygon if coordinates match exactly
+    const response = await fetch(`https://api.agromonitoring.com/agro/1.0/polygons?appid=${AGROMONITORING_API_KEY}&duplicated=true`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -225,17 +226,19 @@ const createOrGetAgroMonitoringPolygon = async (lat: number, lon: number): Promi
 
     if (!response.ok) {
       const errorBody = await response.json();
-      console.error(`AgroMonitoring Polygon API error for ${externalId}: ${response.status} - ${JSON.stringify(errorBody)}`);
-      // If it's a conflict (409), the polygon may already exist. AgroMonitoring's POST acts like upsert for external_id.
-      // So, if it failed but returned a polygon ID, we can still use it.
-      // However, if the error is serious, we throw.
-      if (response.status === 409 && errorBody.polygon && errorBody.polygon.id) {
-        // Sometimes 409 comes with existing polygon in body, but not consistently
-        // Safer to just try to fetch history if we know the external_id exists.
-        // For MVP, we rely on the POST returning the ID even on upsert.
-      } else {
-        throw new Error(`AgroMonitoring Polygon API error: ${response.statusText}`);
+
+      // If still failing with 422 because of duplication (legacy handling)
+      if (response.status === 422 && errorBody.message && errorBody.message.includes('already existed polygon')) {
+        // Extract the ID from the message: "Your polygon is duplicated your already existed polygon 'ID'"
+        const matches = errorBody.message.match(/'([^']+)'/);
+        if (matches && matches[1]) {
+          console.log(`[DEBUG] Reusing existing AgroMonitoring polygon: ${matches[1]}`);
+          return matches[1];
+        }
       }
+
+      console.error(`AgroMonitoring Polygon API error for ${externalId}: ${response.status} - ${JSON.stringify(errorBody)}`);
+      throw new Error(`AgroMonitoring Polygon API error: ${response.statusText}`);
     }
     const data = await response.json();
     return data.id; // Returns the polygon ID
@@ -266,14 +269,38 @@ const fetchAgroMonitoringNDVI = async (polygonId: string): Promise<any> => {
     const ndviHistoryUrl = `https://api.agromonitoring.com/agro/1.0/ndvi/history/${polygonId}?start=${startDateFormatted}&end=${endDate}&appid=${AGROMONITORING_API_KEY}`;
     const response = await fetch(ndviHistoryUrl);
 
+    // Handle 404 (no data available for this polygon/time range)
+    if (response.status === 404) {
+      console.warn(`[AgroMonitoring] No NDVI data available for polygon ${polygonId} in the requested time range.`);
+      return {
+        current: null,
+        historical_mean: null,
+        anomaly: null,
+        source: "AgroMonitoring (Sin datos satelitales para esta ubicación)"
+      };
+    }
+
     if (!response.ok) {
-      const errorBody = await response.json();
-      throw new Error(`AgroMonitoring NDVI API error: ${response.statusText} - ${JSON.stringify(errorBody)}`);
+      // Try to parse error, but handle non-JSON responses
+      let errorMsg = response.statusText;
+      try {
+        const errorBody = await response.json();
+        errorMsg = JSON.stringify(errorBody);
+      } catch {
+        // Response is not JSON, use status text
+      }
+      console.error(`AgroMonitoring NDVI API error: ${response.status} - ${errorMsg}`);
+      return {
+        current: null,
+        historical_mean: null,
+        anomaly: null,
+        source: "AgroMonitoring (Error en API)"
+      };
     }
 
     const ndviData = await response.json();
 
-    if (ndviData.length > 0) {
+    if (ndviData && ndviData.length > 0) {
       // Sort by date (dt is unix timestamp) to get the latest
       ndviData.sort((a: any, b: any) => b.dt - a.dt);
 
@@ -300,7 +327,7 @@ const fetchAgroMonitoringNDVI = async (polygonId: string): Promise<any> => {
     current: null,
     historical_mean: null,
     anomaly: null,
-    source: "AgroMonitoring (Data not available)"
+    source: "AgroMonitoring (Datos no disponibles)"
   };
 };
 

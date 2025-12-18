@@ -2,7 +2,7 @@
     "name": "teralab.app - Análisis de Suelos con IA",
     "short_name": "teralab.app",
     "description": "Analiza tu suelo con inteligencia artificial para optimizar tus cultivos",
-    "start_url": "/",
+    "start_url": "/#/auth",
     "scope": "/",
     "display": "standalone",
     "background_color": "#ffffff",
