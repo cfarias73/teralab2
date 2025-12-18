@@ -165,7 +165,7 @@ export const History: React.FC = () => {
                                     </div>
                                     <div className="mt-2 flex items-center gap-2 text-[10px] text-gray-500">
                                         <span className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">{c.points.length} puntos</span>
-                                        {isComplete && <span>• {c.global_analysis?.field_summary.health_classification.toUpperCase() || 'ANALIZADO'}</span>}
+                                        {isComplete && <span>• {(c.global_analysis?.executive_summary?.overall_health || c.global_analysis?.field_summary?.health_classification || 'ANALIZADO').toUpperCase()}</span>}
                                     </div>
                                 </div>
                             );
