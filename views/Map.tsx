@@ -28,39 +28,46 @@ export const SoilMap: React.FC = () => {
   const [showWeather, setShowWeather] = useState(false);
 
   const navigate = useNavigate();
+  const [isMapLoading, setIsMapLoading] = useState(true);
 
   useEffect(() => {
     const initData = async () => {
-      const [loadedAnalyses, loadedCampaigns] = await Promise.all([
-        getAnalyses(),
-        getCampaigns()
-      ]);
+      try {
+        const [loadedAnalyses, loadedCampaigns] = await Promise.all([
+          getAnalyses(),
+          getCampaigns()
+        ]);
 
-      setHistory(loadedAnalyses);
-      setCampaigns(loadedCampaigns);
+        setHistory(loadedAnalyses || []);
+        setCampaigns(loadedCampaigns || []);
 
-      let hasCenter = false;
+        let hasCenter = false;
 
-      // Prioritize campaign centering
-      if (loadedCampaigns.length > 0) {
-        setCenter(loadedCampaigns[0].parcel.centroid);
-        setZoom(15);
-        setShowZones(true);
-        hasCenter = true;
-      } else if (loadedAnalyses.length > 0 && loadedAnalyses[0].geodata_context) {
-        setCenter([loadedAnalyses[0].geodata_context.lat, loadedAnalyses[0].geodata_context.lon]);
-        setZoom(14);
-        hasCenter = true;
-      }
+        // Prioritize campaign centering
+        if (loadedCampaigns && loadedCampaigns.length > 0) {
+          setCenter(loadedCampaigns[0].parcel.centroid);
+          setZoom(15);
+          setShowZones(true);
+          hasCenter = true;
+        } else if (loadedAnalyses && loadedAnalyses.length > 0 && loadedAnalyses[0].geodata_context) {
+          setCenter([loadedAnalyses[0].geodata_context.lat, loadedAnalyses[0].geodata_context.lon]);
+          setZoom(14);
+          hasCenter = true;
+        }
 
-      if (!hasCenter && navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            setCenter([position.coords.latitude, position.coords.longitude]);
-            setZoom(15);
-          },
-          (error) => console.warn(error)
-        );
+        if (!hasCenter && navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              setCenter([position.coords.latitude, position.coords.longitude]);
+              setZoom(15);
+            },
+            (error) => console.warn(error)
+          );
+        }
+      } catch (error) {
+        console.error('[Map] Error loading data:', error);
+      } finally {
+        setIsMapLoading(false);
       }
     };
 
@@ -182,6 +189,14 @@ export const SoilMap: React.FC = () => {
 
   return (
     <div className={`flex flex-col h-full w-full relative bg-gray-100 overflow-hidden ${isPickingLocation ? 'cursor-crosshair' : ''}`}>
+
+      {/* Loading Overlay */}
+      {isMapLoading && (
+        <div className="absolute inset-0 z-50 bg-white/80 flex flex-col items-center justify-center">
+          <Loader2 className="animate-spin text-primary-500 mb-2" size={32} />
+          <p className="text-sm text-primary-700">Cargando mapa...</p>
+        </div>
+      )}
 
       {isPickingLocation && (
         <div className="absolute top-24 left-4 right-4 z-20 animate-in fade-in slide-in-from-top-4 pointer-events-none">
