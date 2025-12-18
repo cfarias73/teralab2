@@ -17,25 +17,25 @@ export const Landing: React.FC = () => {
         {
             icon: Satellite,
             title: 'Análisis Satelital',
-            description: 'Imágenes de alta resolución con índices NDVI, NDWI y más para monitorear la salud de tus cultivos.',
+            description: 'Imágenes de alta resolución con índices NDVI y NDWI para identificar variabilidad del suelo y zonas productivas.',
             color: 'from-emerald-500 to-teal-600'
         },
         {
             icon: Microscope,
             title: 'IA Visual de Suelos',
-            description: 'Fotografía el suelo y nuestra inteligencia artificial identifica textura, color Munsell y problemas.',
+            description: 'A partir de fotografías del suelo, nuestra IA identifica textura, color (Munsell), compactación y posibles deficiencias.',
             color: 'from-blue-500 to-indigo-600'
         },
         {
             icon: MapPin,
             title: 'Muestreo Inteligente',
-            description: 'Generación automática de puntos de muestreo optimizados según la variabilidad de tu terreno.',
+            description: 'Generación automática de puntos de muestreo optimizados según la variabilidad real del terreno.',
             color: 'from-amber-500 to-orange-600'
         },
         {
             icon: BarChart3,
             title: 'Reportes Profesionales',
-            description: 'Informes detallados con recomendaciones de fertilización y planes de acción descargables en PDF.',
+            description: 'Reportes claros con análisis de suelo y programa de fertilización/fertirriego, listos para aplicar en campo (PDF).',
             color: 'from-purple-500 to-pink-600'
         }
     ];
@@ -44,7 +44,7 @@ export const Landing: React.FC = () => {
         { value: '10,000+', label: 'Hectáreas Analizadas' },
         { value: '500+', label: 'Productores Activos' },
         { value: '95%', label: 'Precisión en Diagnóstico' },
-        { value: '24/7', label: 'Monitoreo Continuo' }
+        { value: 'Resultados', label: 'en < 1 minuto' }
     ];
 
     return (
@@ -107,18 +107,26 @@ export const Landing: React.FC = () => {
                                 <span className="text-emerald-400 text-sm font-medium">Tecnología Satelital + IA</span>
                             </div>
 
-                            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
-                                <span className="text-white">Analiza tu suelo</span>
+                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+                                <span className="text-white">Análisis de suelo y programa de fertilización</span>
                                 <br />
                                 <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
-                                    desde el espacio
+                                    en menos de 1 minuto
                                 </span>
                             </h1>
 
-                            <p className="text-gray-400 text-lg md:text-xl max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
-                                La plataforma de agricultura de precisión que combina imágenes satelitales,
-                                inteligencia artificial y análisis visual para optimizar tus cultivos.
+                            <p className="text-gray-400 text-lg md:text-xl max-w-xl mx-auto lg:mx-0 mb-6 leading-relaxed">
+                                Combina imágenes satelitales, inteligencia artificial y análisis visual del suelo para recomendar cómo y cuánto fertilizar, según tu cultivo y etapa.
                             </p>
+
+                            <div className="flex flex-wrap justify-center lg:justify-start gap-4 mb-8">
+                                {['Sin laboratorio', 'Sin esperas', 'Resultados listos para aplicar'].map((item, i) => (
+                                    <div key={i} className="flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1">
+                                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                                        <span className="text-emerald-300 text-sm font-medium">{item}</span>
+                                    </div>
+                                ))}
+                            </div>
 
                             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                                 <button
@@ -317,10 +325,10 @@ export const Landing: React.FC = () => {
                 <div className="max-w-4xl mx-auto px-6 text-center">
                     <div className="bg-gradient-to-r from-emerald-900/50 to-teal-900/50 border border-emerald-500/30 rounded-3xl p-12 md:p-16">
                         <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                            Comienza a analizar <span className="text-emerald-400">hoy</span>
+                            Obtén tu análisis y plan de fertilización <span className="text-emerald-400">hoy</span>
                         </h2>
                         <p className="text-gray-400 text-lg mb-8 max-w-xl mx-auto">
-                            Únete a cientos de productores que ya optimizan sus cultivos con tecnología satelital e inteligencia artificial.
+                            En menos de 1 minuto, sin laboratorio y sin esperas.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <button
