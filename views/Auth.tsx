@@ -57,7 +57,7 @@ export const Auth: React.FC = () => {
           }
         }
 
-        navigate('/');
+        navigate('/home');
       } else if (mode === 'signup') {
         const { error } = await supabase.auth.signUp({
           email,
@@ -90,7 +90,7 @@ export const Auth: React.FC = () => {
         setMessage({ type: 'success', text: '¡Contraseña actualizada! Redirigiendo...' });
         // Clear hash from URL
         window.history.replaceState(null, '', window.location.pathname);
-        setTimeout(() => navigate('/'), 1500);
+        setTimeout(() => navigate('/home'), 1500);
       }
     } catch (error: any) {
       setMessage({ type: 'error', text: error.message || 'Ocurrió un error.' });

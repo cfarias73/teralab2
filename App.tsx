@@ -14,7 +14,9 @@ import { FieldResults } from './views/FieldResults';
 import { Profile } from './views/Profile';
 import { Auth } from './views/Auth';
 import { FieldOverview } from './views/FieldOverview';
+import { Landing } from './views/Landing';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -32,7 +34,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Simple wrapper that shows splash while auth is loading
+// App content with Layout wrapper (for authenticated app views)
 function AppContent() {
   const { loading } = useAuth();
 
@@ -54,7 +56,7 @@ function AppRoutes() {
       <Route path="/auth" element={<Auth />} />
 
       {/* Public routes - No auth required */}
-      <Route path="/" element={<Home />} />
+      <Route path="/home" element={<Home />} />
       <Route path="/field-editor" element={<FieldEditor />} />
 
       {/* Protected routes - Auth required */}
@@ -66,18 +68,36 @@ function AppRoutes() {
       <Route path="/map" element={<ProtectedRoute><SoilMap /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="*" element={<Navigate to="/home" />} />
     </Routes>
   );
+}
+
+// Main router with landing page
+function MainRoutes() {
+  const location = useLocation();
+
+  // Landing page at root - no Layout wrapper
+  if (location.pathname === '/') {
+    return <Landing />;
+  }
+
+  // Everything else goes through AppContent with Layout
+  return <AppContent />;
 }
 
 function App() {
   return (
     <AuthProvider>
-      <HashRouter>
-        <AppContent />
-        <Analytics />
-      </HashRouter>
+      <LanguageProvider>
+        <HashRouter>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/*" element={<AppContent />} />
+          </Routes>
+          <Analytics />
+        </HashRouter>
+      </LanguageProvider>
     </AuthProvider>
   );
 }

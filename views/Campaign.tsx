@@ -291,7 +291,7 @@ export const Campaign: React.FC = () => {
         <div className="h-full flex flex-col bg-gray-100 relative">
             {/* Header */}
             <div className="glass-panel p-4 z-10 flex justify-between items-center">
-                <button onClick={() => navigate('/')} className="p-2 rounded-full hover:bg-gray-200">
+                <button onClick={() => navigate('/home')} className="p-2 rounded-full hover:bg-gray-200">
                     <ChevronLeft size={20} />
                 </button>
                 <div className="text-center">

@@ -264,7 +264,7 @@ export const FieldEditor: React.FC = () => {
 
             // If authenticated, save normally to Supabase
             await saveCampaign(campaignToSave);
-            navigate('/');
+            navigate('/home');
         } catch (e: any) {
             alert("Error al guardar: " + e.message);
         } finally {
@@ -276,7 +276,7 @@ export const FieldEditor: React.FC = () => {
         <div className="h-full flex flex-col bg-gray-900 relative">
             {/* Top Controls */}
             <div className="absolute top-4 left-4 z-20 flex flex-col space-y-3">
-                <button onClick={() => navigate('/')} className="bg-white/90 backdrop-blur p-2.5 rounded-full shadow-lg text-gray-700 hover:bg-white transition-all">
+                <button onClick={() => navigate('/home')} className="bg-white/90 backdrop-blur p-2.5 rounded-full shadow-lg text-gray-700 hover:bg-white transition-all">
                     <ArrowLeft size={22} />
                 </button>
 

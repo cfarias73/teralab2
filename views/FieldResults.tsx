@@ -90,7 +90,7 @@ export const FieldResults: React.FC = () => {
         <div className="p-4 space-y-6 pb-24">
             <div className="glass-panel p-4 rounded-xl flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                    <button onClick={() => navigate('/')} className="p-2 -ml-2 rounded-full hover:bg-white/50"><ChevronLeft /></button>
+                    <button onClick={() => navigate('/home')} className="p-2 -ml-2 rounded-full hover:bg-white/50"><ChevronLeft /></button>
                     <h1 className="font-bold text-xl text-primary-900 truncate max-w-[200px]">{campaign.parcel.name}</h1>
                 </div>
                 <button

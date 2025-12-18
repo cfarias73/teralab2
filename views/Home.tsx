@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, LayoutGrid, Tractor, Loader2, PlusCircle, FileText, Eye, Trash2 } from 'lucide-react';
 import { ParcelSummary } from '../types';
 import { getParcelsWithLatestCampaignStatus, deleteParcel } from '../services/dataService';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const Home: React.FC = () => {
     const navigate = useNavigate();
+    const { t } = useLanguage();
     const [parcels, setParcels] = useState<ParcelSummary[]>([]);
     const [loading, setLoading] = useState(true);
     const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -23,7 +25,7 @@ export const Home: React.FC = () => {
             setParcels(prev => prev.filter(p => p.id !== parcelId));
         } catch (error) {
             console.error('Error deleting parcel:', error);
-            alert('Error al eliminar el campo');
+            alert(t('common.error'));
         } finally {
             setDeletingId(null);
             setConfirmDeleteId(null);
@@ -68,21 +70,21 @@ export const Home: React.FC = () => {
                             <Tractor size={40} className="text-primary-400" />
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-primary-800">¡Comienza a mapear!</h3>
-                            <p className="text-sm text-primary-600 mt-2">Registra tu primer campo para iniciar el análisis de suelo.</p>
+                            <h3 className="text-lg font-bold text-primary-800">{t('home.startMapping')}</h3>
+                            <p className="text-sm text-primary-600 mt-2">{t('home.registerFirst')}</p>
                         </div>
                         <button
                             onClick={() => navigate('/field-editor')}
                             className="mt-2 bg-primary-600 hover:bg-primary-500 text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg transition-all active:scale-95 flex items-center space-x-2"
                         >
                             <Plus size={18} />
-                            <span>Crear mi primer campo</span>
+                            <span>{t('home.createFirst')}</span>
                         </button>
                     </div>
                 ) : (
                     <>
                         <div className="flex justify-between items-center px-1">
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-primary-800/60">Lotes Activos</h3>
+                            <h3 className="text-xs font-bold uppercase tracking-widest text-primary-800/60">{t('home.activeLots')}</h3>
                             <span className="bg-primary-100 text-primary-700 text-xs px-2 py-0.5 rounded-full font-bold">{parcels.length}</span>
                         </div>
                         <div className="space-y-2">
@@ -107,8 +109,8 @@ export const Home: React.FC = () => {
                                             parcel.latest_campaign_status === 'in_progress' ? 'bg-amber-100 text-amber-700' :
                                                 'bg-gray-100 text-gray-600'
                                             }`}>
-                                            {parcel.latest_campaign_status === 'completed' ? 'Listo' :
-                                                parcel.latest_campaign_status === 'in_progress' ? 'En Curso' : 'Nuevo'}
+                                            {parcel.latest_campaign_status === 'completed' ? t('home.ready') :
+                                                parcel.latest_campaign_status === 'in_progress' ? t('home.progress') : t('home.new')}
                                         </div>
                                     </div>
 
@@ -124,7 +126,7 @@ export const Home: React.FC = () => {
                                                     className="flex-1 bg-primary-600 hover:bg-primary-700 text-white py-1.5 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1 shadow-sm transition-colors"
                                                 >
                                                     <PlusCircle size={12} />
-                                                    <span>Nuevo</span>
+                                                    <span>{t('home.new')}</span>
                                                 </button>
                                                 <button
                                                     onClick={(e) => {
@@ -136,13 +138,13 @@ export const Home: React.FC = () => {
                                                     className="flex-1 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 py-1.5 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1 shadow-sm transition-colors"
                                                 >
                                                     <FileText size={12} />
-                                                    <span>Reporte</span>
+                                                    <span>{t('home.report')}</span>
                                                 </button>
                                             </>
                                         ) : (
                                             <div className="flex-1">
                                                 <div className="flex justify-between text-[10px] text-primary-600 mb-0.5">
-                                                    <span>Progreso</span>
+                                                    <span>{t('home.progress')}</span>
                                                     <span className="font-bold">{parcel.sampled_points_count}/{parcel.total_points_count}</span>
                                                 </div>
                                                 <div className="w-full bg-gray-200 rounded-full h-1 overflow-hidden">
@@ -159,7 +161,7 @@ export const Home: React.FC = () => {
                                                 navigate(`/field/${parcel.id}`);
                                             }}
                                             className="p-1.5 rounded-lg bg-primary-50 hover:bg-primary-100 text-primary-600 transition-colors"
-                                            title="Ver detalle"
+                                            title={t('home.viewDetail')}
                                         >
                                             <Eye size={14} />
                                         </button>
@@ -173,7 +175,7 @@ export const Home: React.FC = () => {
                                                 ? 'bg-red-500 text-white hover:bg-red-600'
                                                 : 'bg-red-50 hover:bg-red-100 text-red-500'
                                                 }`}
-                                            title={confirmDeleteId === parcel.id ? 'Confirmar' : 'Eliminar'}
+                                            title={confirmDeleteId === parcel.id ? t('home.deleteConfirm') : t('home.deleteTitle')}
                                         >
                                             {deletingId === parcel.id ? (
                                                 <Loader2 size={14} className="animate-spin" />
