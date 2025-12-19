@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>teralab.app</title>
   <link rel="icon" type="image/x-icon" href="/iconoteralab.ico">
 
@@ -124,6 +124,31 @@
 
     .slide-in-from-bottom {
       animation: slideInFromBottom 0.5s ease-out forwards;
+    }
+
+    /* Prevent zoom on form elements but allow on maps */
+    input,
+    select,
+    textarea,
+    button {
+      touch-action: manipulation;
+      font-size: 16px;
+      /* Prevents iOS auto-zoom on focus */
+    }
+
+    /* Allow pinch-zoom only on map containers */
+    .map-container {
+      touch-action: auto !important;
+    }
+
+    /* Force pigeon-maps elements to allow pinch-zoom */
+    .map-container * {
+      touch-action: auto !important;
+    }
+
+    .map-container>div,
+    .map-container>div>div {
+      touch-action: auto !important;
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>

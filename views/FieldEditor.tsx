@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Map, Draggable } from 'pigeon-maps';
+import { Map, Draggable, ZoomControl } from 'pigeon-maps';
 import { Parcel, FieldCampaign, Zone, SamplingPoint } from '../types';
 import { calculatePolygonArea, calculateCentroid, delineateZones, generateSamplingPoints, isPointInPolygon } from '../services/geodataService';
 import { saveCampaign, getCampaigns } from '../services/dataService';
@@ -274,7 +274,7 @@ export const FieldEditor: React.FC = () => {
 
     return (
         <div
-            className="flex flex-col bg-gray-900 relative"
+            className="flex flex-col bg-gray-900 relative map-container"
             style={{ height: 'calc(100vh - 136px)' }} // 68px header + 68px nav
         >
             {/* Top Controls */}
@@ -349,7 +349,12 @@ export const FieldEditor: React.FC = () => {
                     animate={true}
                     minZoom={3}
                     maxZoom={20}
+                    zoomSnap={false}
+                    twoFingerDrag={true}
+                    metaWheelZoom={true}
                 >
+                    <ZoomControl style={{ top: 80, right: 16 }} />
+
                     {/* 1. Render Existing Campaigns (Ghost Polygons) */}
                     {!isPlanMode && existingCampaigns.map(camp => (
                         camp.id !== editingId && (

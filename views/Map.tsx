@@ -189,7 +189,7 @@ export const SoilMap: React.FC = () => {
 
   return (
     <div
-      className={`flex flex-col w-full relative bg-gray-100 overflow-hidden ${isPickingLocation ? 'cursor-crosshair' : ''}`}
+      className={`flex flex-col w-full relative bg-gray-100 overflow-hidden map-container ${isPickingLocation ? 'cursor-crosshair' : ''}`}
       style={{ height: 'calc(100vh - 136px)' }} // 68px header + 68px nav
     >
 
@@ -324,6 +324,9 @@ export const SoilMap: React.FC = () => {
           provider={mapProvider}
           dprs={[1, 2]}
           onClick={handleMapClick}
+          zoomSnap={false}
+          twoFingerDrag={true}
+          metaWheelZoom={true}
         >
           <ZoomControl style={{ top: 100, right: 10 }} />
 
