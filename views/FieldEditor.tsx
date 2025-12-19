@@ -273,7 +273,10 @@ export const FieldEditor: React.FC = () => {
     };
 
     return (
-        <div className="h-full flex flex-col bg-gray-900 relative">
+        <div
+            className="flex flex-col bg-gray-900 relative"
+            style={{ height: 'calc(100vh - 136px)' }} // 68px header + 68px nav
+        >
             {/* Top Controls */}
             <div className="absolute top-4 left-4 z-20 flex flex-col space-y-3">
                 <button onClick={() => navigate('/home')} className="bg-white/90 backdrop-blur p-2.5 rounded-full shadow-lg text-gray-700 hover:bg-white transition-all">
@@ -336,15 +339,16 @@ export const FieldEditor: React.FC = () => {
             )}
 
             {/* Map */}
-            <div className="flex-grow w-full h-full relative">
+            <div className="absolute inset-0">
                 <Map
-                    width={370}
-                    height={500}
                     center={center}
                     zoom={zoom}
                     onBoundsChanged={({ center, zoom }) => { setCenter(center); setZoom(zoom); }}
                     onClick={handleMapClick}
                     provider={satelliteProvider}
+                    animate={true}
+                    minZoom={3}
+                    maxZoom={20}
                 >
                     {/* 1. Render Existing Campaigns (Ghost Polygons) */}
                     {!isPlanMode && existingCampaigns.map(camp => (

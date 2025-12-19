@@ -188,7 +188,10 @@ export const SoilMap: React.FC = () => {
   };
 
   return (
-    <div className={`flex flex-col h-full w-full relative bg-gray-100 overflow-hidden ${isPickingLocation ? 'cursor-crosshair' : ''}`}>
+    <div
+      className={`flex flex-col w-full relative bg-gray-100 overflow-hidden ${isPickingLocation ? 'cursor-crosshair' : ''}`}
+      style={{ height: 'calc(100vh - 136px)' }} // 68px header + 68px nav
+    >
 
       {/* Loading Overlay */}
       {isMapLoading && (
