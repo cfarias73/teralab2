@@ -214,7 +214,11 @@ Debes generar un informe que integre los siguientes 6 PILARES DE ANÁLISIS:
    - Correcciones Foliares: Micronutrientes según deficiencias detectadas`}
 
 6. ANÁLISIS TEMPORAL Y COMPARATIVO
-   - Anomalías de Vigor: NDVI actual vs. promedio histórico época/cultivo
+   - **IMPORTANTE**: Si los datos de NDVI son null, "no disponible", o no existen, NO generes interpretaciones inventadas.
+   - Si NDVI.current es null: temporal_comparison.ndvi_anomaly.current_vs_historical DEBE ser exactamente "N/A" (solo esas 3 letras)
+   - Si NDVI.current es null: temporal_comparison.ndvi_anomaly.interpretation DEBE ser exactamente "N/A"  
+   - NO escribas frases como "No hay datos disponibles..." o "La ausencia de datos limita..."
+   - SOLO si NDVI.current tiene un valor numérico real, entonces genera el análisis de anomalías
    - Evolución Estacional: Cambios humedad/estructura según temporada (${season})
 
 === INSTRUCCIONES ESPECIALES PARA FERTILIZACIÓN Y RIEGO ===

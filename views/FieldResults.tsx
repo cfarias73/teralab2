@@ -303,11 +303,27 @@ export const FieldResults: React.FC = () => {
                         </section>
                     )}
 
-                    {/* 6. Temporal Comparison - Only show when real NDVI data exists */}
-                    {report.temporal_comparison &&
-                        report.temporal_comparison.ndvi_anomaly?.current_vs_historical &&
-                        !report.temporal_comparison.ndvi_anomaly.current_vs_historical.toLowerCase().includes('n/a') &&
-                        !report.temporal_comparison.ndvi_anomaly.current_vs_historical.toLowerCase().includes('no disponible') && (
+                    {/* 6. Temporal Comparison - Only show when REAL NDVI data exists */}
+                    {(() => {
+                        // Check if we have valid NDVI data (not placeholders or error messages)
+                        const ndviText = report.temporal_comparison?.ndvi_anomaly?.current_vs_historical?.toLowerCase() || '';
+                        const hasNoData =
+                            !report.temporal_comparison ||
+                            !ndviText ||
+                            ndviText.includes('n/a') ||
+                            ndviText.includes('no disponible') ||
+                            ndviText.includes('no hay datos') ||
+                            ndviText.includes('sin datos') ||
+                            ndviText.includes('no se puede') ||
+                            ndviText.includes('no disponibles') ||
+                            ndviText.includes('ausencia') ||
+                            ndviText.includes('no detectado') ||
+                            ndviText.includes('null') ||
+                            ndviText.length < 5; // Too short to be real data
+
+                        if (hasNoData) return null;
+
+                        return (
                             <section className="glass-panel p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50">
                                 <h3 className="text-xs font-bold uppercase text-indigo-700 mb-3 flex items-center">
                                     <Calendar size={14} className="mr-1" /> Análisis Temporal
@@ -320,11 +336,12 @@ export const FieldResults: React.FC = () => {
                                     </div>
                                     <div className="bg-white/60 p-3 rounded-lg">
                                         <span className="font-bold text-indigo-800 block">Evolución Estacional</span>
-                                        <p className="text-indigo-700">{report.temporal_comparison.seasonal_profile_evolution || 'Sin datos'}</p>
+                                        <p className="text-indigo-700">{report.temporal_comparison.seasonal_profile_evolution}</p>
                                     </div>
                                 </div>
                             </section>
-                        )}
+                        );
+                    })()}
 
                     {/* ===== END NEW SECTIONS ===== */}
 
