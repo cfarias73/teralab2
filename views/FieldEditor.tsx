@@ -4,7 +4,7 @@ import { Map, Draggable, ZoomControl } from 'pigeon-maps';
 import { Parcel, FieldCampaign, Zone, SamplingPoint } from '../types';
 import { calculatePolygonArea, calculateCentroid, delineateZones, generateSamplingPoints, isPointInPolygon } from '../services/geodataService';
 import { saveCampaign, getCampaigns } from '../services/dataService';
-import { Save, Upload, Square, Trash2, Sprout, Leaf, ArrowLeft, Layers, MapPin, RefreshCw, PenTool, Tractor, TrendingUp, X, Loader2 } from 'lucide-react';
+import { Save, Upload, Square, Trash2, Sprout, Leaf, ArrowLeft, Layers, MapPin, RefreshCw, PenTool, Tractor, TrendingUp, X, Loader2, CheckCircle, UserPlus, LogIn } from 'lucide-react';
 import { PolygonLayer, LineStringLayer } from '../components/MapLayers';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -33,6 +33,8 @@ export const FieldEditor: React.FC = () => {
     const [previewPoints, setPreviewPoints] = useState<SamplingPoint[]>([]);
     const [previewZones, setPreviewZones] = useState<Zone[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+    const [showAuthModal, setShowAuthModal] = useState(false);
+    const [pendingCampaignData, setPendingCampaignData] = useState<FieldCampaign | null>(null);
 
     // Editing State (Step 1)
     const [selectedVertexIdx, setSelectedVertexIdx] = useState<number | null>(null);
@@ -255,10 +257,12 @@ export const FieldEditor: React.FC = () => {
                 global_analysis: currentCampaign?.global_analysis
             };
 
-            // If not authenticated, save to localStorage and redirect to auth
+            // If not authenticated, show modal instead of direct redirect
             if (!user) {
                 localStorage.setItem('pendingCampaign', JSON.stringify(campaignToSave));
-                navigate('/auth');
+                setPendingCampaignData(campaignToSave);
+                setShowAuthModal(true);
+                setIsSaving(false);
                 return;
             }
 
@@ -519,6 +523,73 @@ export const FieldEditor: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Auth Required Modal */}
+            {showAuthModal && (
+                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-in fade-in">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[380px] overflow-hidden animate-in zoom-in-95">
+                        {/* Header with success icon */}
+                        <div className="bg-gradient-to-r from-primary-500 to-emerald-500 p-6 text-center">
+                            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <Sprout size={32} className="text-white" />
+                            </div>
+                            <h2 className="text-xl font-bold text-white">¡Tu campo está listo!</h2>
+                            <p className="text-white/80 text-sm mt-1">{parcelName || 'Nuevo Campo'}</p>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-6 space-y-4">
+                            <p className="text-gray-600 text-sm text-center">
+                                Para guardar tu campo y acceder a tus análisis de suelo, crea tu cuenta gratuita.
+                            </p>
+
+                            {/* Benefits */}
+                            <div className="space-y-2">
+                                <div className="flex items-center text-sm text-gray-700">
+                                    <CheckCircle size={16} className="text-emerald-500 mr-2 flex-shrink-0" />
+                                    <span>Solo toma 30 segundos</span>
+                                </div>
+                                <div className="flex items-center text-sm text-gray-700">
+                                    <CheckCircle size={16} className="text-emerald-500 mr-2 flex-shrink-0" />
+                                    <span>Tu campo quedará guardado</span>
+                                </div>
+                                <div className="flex items-center text-sm text-gray-700">
+                                    <CheckCircle size={16} className="text-emerald-500 mr-2 flex-shrink-0" />
+                                    <span>1 análisis gratis incluido</span>
+                                </div>
+                            </div>
+
+                            {/* Buttons */}
+                            <div className="space-y-2 pt-2">
+                                <button
+                                    onClick={() => navigate('/auth', { state: { mode: 'register' } })}
+                                    className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center space-x-2 transition-all active:scale-[0.98]"
+                                >
+                                    <UserPlus size={18} />
+                                    <span>Crear cuenta gratis</span>
+                                </button>
+                                <button
+                                    onClick={() => navigate('/auth', { state: { mode: 'login' } })}
+                                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-xl flex items-center justify-center space-x-2 transition-all active:scale-[0.98]"
+                                >
+                                    <LogIn size={18} />
+                                    <span>Ya tengo cuenta</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Cancel link */}
+                        <div className="px-6 pb-4">
+                            <button
+                                onClick={() => setShowAuthModal(false)}
+                                className="w-full text-center text-gray-400 hover:text-gray-600 text-sm py-2 transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </div>
     );
