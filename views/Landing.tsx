@@ -1,17 +1,35 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Satellite, Leaf, BarChart3, Zap, MapPin, Microscope, Cloud, ArrowRight, ChevronDown, Play, CheckCircle2, Star } from 'lucide-react';
+import { Satellite, Leaf, BarChart3, Zap, MapPin, Microscope, Cloud, ArrowRight, ChevronDown, Play, CheckCircle2, Star, X, Camera, Sparkles } from 'lucide-react';
 
 export const Landing: React.FC = () => {
     const navigate = useNavigate();
     const [scrollY, setScrollY] = useState(0);
+    const [showConversionPopup, setShowConversionPopup] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => setScrollY(window.scrollY);
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    // Show conversion popup after 3 seconds
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            // Only show if user hasn't seen it before in this session
+            if (!sessionStorage.getItem('conversionPopupShown')) {
+                setShowConversionPopup(true);
+                sessionStorage.setItem('conversionPopupShown', 'true');
+            }
+        }, 3000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    const handlePopupCTA = () => {
+        setShowConversionPopup(false);
+        navigate('/field-editor');
+    };
 
     const features = [
         {
@@ -381,6 +399,81 @@ export const Landing: React.FC = () => {
                     animation: float-delayed 4s ease-in-out infinite 0.5s;
                 }
             `}</style>
+
+            {/* Conversion Popup */}
+            {showConversionPopup && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300"
+                        onClick={() => setShowConversionPopup(false)}
+                    />
+
+                    {/* Modal */}
+                    <div className="relative w-full max-w-[380px] animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+                        {/* Close button */}
+                        <button
+                            onClick={() => setShowConversionPopup(false)}
+                            className="absolute -top-2 -right-2 z-10 w-8 h-8 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition-colors shadow-lg"
+                        >
+                            <X size={16} />
+                        </button>
+
+                        <div className="bg-gradient-to-b from-gray-900 via-gray-900 to-gray-950 rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shadow-emerald-500/10">
+                            {/* Glow effect */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-emerald-500/10 rounded-2xl" />
+
+                            {/* Header with GRATIS badge */}
+                            <div className="relative pt-6 pb-4 text-center">
+                                <div className="inline-flex items-center justify-center px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full shadow-lg shadow-emerald-500/30 mb-4">
+                                    <Sparkles className="w-5 h-5 text-gray-950 mr-2" />
+                                    <span className="text-2xl font-black text-gray-950 tracking-tight">¡GRATIS!</span>
+                                </div>
+                            </div>
+
+                            {/* Content */}
+                            <div className="relative px-6 pb-6 text-center">
+                                <h2 className="text-xl font-bold text-white mb-3 leading-tight">
+                                    Tu primer análisis de suelo con solo una foto.
+                                </h2>
+
+                                <p className="text-gray-400 text-sm mb-6 leading-relaxed">
+                                    Sin laboratorios ni esperas. Recibe el diagnóstico de tu campo en <span className="text-emerald-400 font-semibold">30 segundos</span>.
+                                </p>
+
+                                {/* Visual element */}
+                                <div className="flex justify-center mb-6">
+                                    <div className="relative">
+                                        <div className="w-16 h-16 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl flex items-center justify-center border border-emerald-500/30">
+                                            <Camera className="w-8 h-8 text-emerald-400" />
+                                        </div>
+                                        <div className="absolute -right-2 -bottom-2 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+                                            <Zap className="w-3 h-3 text-gray-950" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* CTA Button */}
+                                <button
+                                    onClick={handlePopupCTA}
+                                    className="w-full group bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-gray-950 font-bold py-4 px-6 rounded-xl text-base transition-all hover:shadow-xl hover:shadow-emerald-500/30 active:scale-[0.98] flex items-center justify-center space-x-2"
+                                >
+                                    <span>ANALIZAR MI CAMPO AHORA</span>
+                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                </button>
+
+                                {/* Dismiss link */}
+                                <button
+                                    onClick={() => setShowConversionPopup(false)}
+                                    className="mt-4 text-gray-600 hover:text-gray-400 text-xs transition-colors"
+                                >
+                                    No, gracias. Prefiero seguir esperando al laboratorio.
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
