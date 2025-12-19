@@ -27,6 +27,13 @@ export const Landing: React.FC = () => {
     }, []);
 
     const handlePopupCTA = () => {
+        // Track popup CTA click in Google Analytics
+        if (typeof window !== 'undefined' && (window as any).gtag) {
+            (window as any).gtag('event', 'popup_cta_click', {
+                event_category: 'Conversion',
+                event_label: 'Landing Popup CTA'
+            });
+        }
         setShowConversionPopup(false);
         navigate('/field-editor');
     };

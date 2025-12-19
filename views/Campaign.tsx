@@ -105,6 +105,15 @@ export const Campaign: React.FC = () => {
             setPaymentCompleted(true);
             recordPaymentSuccess(user.id, sessionId, PAYMENT_AMOUNT, 'USD')
                 .then(() => {
+                    // Track subscription purchase in Google Analytics
+                    if (typeof window !== 'undefined' && (window as any).gtag) {
+                        (window as any).gtag('event', 'purchase', {
+                            event_category: 'Conversion',
+                            event_label: 'Subscription',
+                            value: PAYMENT_AMOUNT,
+                            currency: 'USD'
+                        });
+                    }
                     // Clean URL
                     window.history.replaceState({}, '', window.location.pathname);
                     // Show success message
@@ -250,6 +259,15 @@ export const Campaign: React.FC = () => {
 
             await saveCampaign(finalCampaign);
             setBatchProgress(100);
+
+            // Track analysis completion in Google Analytics
+            if (typeof window !== 'undefined' && (window as any).gtag) {
+                (window as any).gtag('event', 'analysis_completed', {
+                    event_category: 'Conversion',
+                    event_label: 'Field Analysis',
+                    value: campaign.points.length
+                });
+            }
 
             // 4. Redirect
             navigate(`/field-results/${campaign.id}`);

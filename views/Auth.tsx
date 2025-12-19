@@ -70,6 +70,16 @@ export const Auth: React.FC = () => {
           }
         });
         if (error) throw error;
+
+        // Track signup in Google Analytics
+        if (typeof window !== 'undefined' && (window as any).gtag) {
+          (window as any).gtag('event', 'sign_up', {
+            event_category: 'Conversion',
+            event_label: 'User Registration',
+            method: 'email'
+          });
+        }
+
         setMessage({ type: 'success', text: '¡Registro exitoso! Revisa tu correo para confirmar.' });
         setMode('signin');
       } else if (mode === 'forgot_password') {
