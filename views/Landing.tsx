@@ -1,10 +1,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Satellite, Leaf, BarChart3, Zap, MapPin, Microscope, Cloud, ArrowRight, ChevronDown, Play, CheckCircle2, Star, X, Camera, Sparkles } from 'lucide-react';
+import { Satellite, Leaf, BarChart3, Zap, MapPin, Microscope, Cloud, ArrowRight, ChevronDown, Play, CheckCircle2, Star, X, Camera, Sparkles, Globe } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const Landing: React.FC = () => {
     const navigate = useNavigate();
+    const { language, setLanguage } = useLanguage();
     const [scrollY, setScrollY] = useState(0);
     const [showConversionPopup, setShowConversionPopup] = useState(false);
 
@@ -38,7 +40,7 @@ export const Landing: React.FC = () => {
         navigate('/field-editor');
     };
 
-    const features = [
+    const features = language === 'es' ? [
         {
             icon: Satellite,
             title: 'Análisis Satelital',
@@ -63,14 +65,105 @@ export const Landing: React.FC = () => {
             description: 'Reportes claros con análisis de suelo y programa de fertilización/fertirriego, listos para aplicar en campo (PDF).',
             color: 'from-purple-500 to-pink-600'
         }
+    ] : [
+        {
+            icon: Satellite,
+            title: 'Satellite Analysis',
+            description: 'High-resolution imagery with NDVI and NDWI indices to identify soil variability and productive zones.',
+            color: 'from-emerald-500 to-teal-600'
+        },
+        {
+            icon: Microscope,
+            title: 'AI Visual Soil Analysis',
+            description: 'From soil photographs, our AI identifies texture, color (Munsell), compaction and possible deficiencies.',
+            color: 'from-blue-500 to-indigo-600'
+        },
+        {
+            icon: MapPin,
+            title: 'Smart Sampling',
+            description: 'Automatic generation of optimized sampling points based on actual terrain variability.',
+            color: 'from-amber-500 to-orange-600'
+        },
+        {
+            icon: BarChart3,
+            title: 'Professional Reports',
+            description: 'Clear reports with soil analysis and fertilization program, ready to apply in the field (PDF).',
+            color: 'from-purple-500 to-pink-600'
+        }
     ];
 
-    const stats = [
+    const stats = language === 'es' ? [
         { value: '10,000+', label: 'Hectáreas Analizadas' },
         { value: '500+', label: 'Productores Activos' },
         { value: '95%', label: 'Precisión en Diagnóstico' },
         { value: 'Resultados', label: 'en < 1 minuto' }
+    ] : [
+        { value: '10,000+', label: 'Hectares Analyzed' },
+        { value: '500+', label: 'Active Farmers' },
+        { value: '95%', label: 'Diagnostic Accuracy' },
+        { value: 'Results', label: 'in < 1 minute' }
     ];
+
+    // Translations object for static text
+    const t = language === 'es' ? {
+        heroTag: 'La Nueva Era del Diagnóstico de Suelos',
+        heroTitle1: 'Analiza tu suelo',
+        heroTitle2: 'con Inteligencia Artificial',
+        heroSubtitle: 'Fotografía, analiza y recibe diagnóstico profesional de suelos en segundos. Sin laboratorios, sin esperas.',
+        heroBenefits: ['Sin equipos costosos', 'Resultados en minutos', 'Diagnóstico con IA avanzada'],
+        ctaButton: 'Comenzar Gratis',
+        watchDemo: 'Ver Demo',
+        featuresTitle: 'Todo lo que necesitas para',
+        featuresTitleHighlight: 'optimizar tu producción',
+        howItWorks: 'Cómo Funciona',
+        step1Title: 'Marca tu Campo',
+        step1Desc: 'Dibuja los límites de tu parcela en el mapa interactivo.',
+        step2Title: 'Toma Fotos',
+        step2Desc: 'Captura fotos del suelo en los puntos de muestreo.',
+        step3Title: 'Recibe Análisis',
+        step3Desc: 'Obtén diagnóstico completo y recomendaciones.',
+        testimonialsTitle: 'Lo que dicen nuestros',
+        testimonialsTitleHighlight: 'productores',
+        finalCta: '¿Listo para revolucionar tu agricultura?',
+        finalCtaSubtitle: 'Únete a miles de productores que ya optimizan sus cultivos con TeraLab.',
+        startNow: 'Empezar Ahora',
+        footer: 'Transformando la agricultura con inteligencia artificial.',
+        popupFree: '¡GRATIS!',
+        popupTitle: 'Tu primer análisis de suelo con solo una foto.',
+        popupSubtitle: 'Sin laboratorios ni esperas. Recibe el diagnóstico de tu campo en',
+        popupSeconds: '30 segundos',
+        popupCta: 'ANALIZAR MI CAMPO AHORA',
+        popupDismiss: 'No, gracias. Prefiero seguir esperando al laboratorio.'
+    } : {
+        heroTag: 'The New Era of Soil Diagnostics',
+        heroTitle1: 'Analyze your soil',
+        heroTitle2: 'with Artificial Intelligence',
+        heroSubtitle: 'Photograph, analyze and receive professional soil diagnosis in seconds. No labs, no waiting.',
+        heroBenefits: ['No expensive equipment', 'Results in minutes', 'Advanced AI diagnosis'],
+        ctaButton: 'Start Free',
+        watchDemo: 'Watch Demo',
+        featuresTitle: 'Everything you need to',
+        featuresTitleHighlight: 'optimize your production',
+        howItWorks: 'How It Works',
+        step1Title: 'Mark Your Field',
+        step1Desc: 'Draw the boundaries of your plot on the interactive map.',
+        step2Title: 'Take Photos',
+        step2Desc: 'Capture soil photos at sampling points.',
+        step3Title: 'Get Analysis',
+        step3Desc: 'Get complete diagnosis and recommendations.',
+        testimonialsTitle: 'What our',
+        testimonialsTitleHighlight: 'farmers say',
+        finalCta: 'Ready to revolutionize your agriculture?',
+        finalCtaSubtitle: 'Join thousands of farmers already optimizing their crops with TeraLab.',
+        startNow: 'Start Now',
+        footer: 'Transforming agriculture with artificial intelligence.',
+        popupFree: 'FREE!',
+        popupTitle: 'Your first soil analysis with just a photo.',
+        popupSubtitle: 'No labs or waiting. Get your field diagnosis in',
+        popupSeconds: '30 seconds',
+        popupCta: 'ANALYZE MY FIELD NOW',
+        popupDismiss: "No thanks. I'd rather keep waiting for the lab."
+    };
 
     return (
         <div className="min-h-screen bg-gray-950 text-white overflow-x-hidden">
@@ -86,16 +179,32 @@ export const Landing: React.FC = () => {
                         </span>
                     </div>
                     <div className="hidden md:flex items-center space-x-8">
-                        <a href="#features" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">Características</a>
-                        <a href="#how-it-works" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">Cómo Funciona</a>
-                        <a href="#testimonials" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">Testimonios</a>
+                        <a href="#features" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">
+                            {language === 'es' ? 'Características' : 'Features'}
+                        </a>
+                        <a href="#how-it-works" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">
+                            {language === 'es' ? 'Cómo Funciona' : 'How It Works'}
+                        </a>
+                        <a href="#testimonials" className="text-gray-400 hover:text-white transition-colors text-sm font-medium">
+                            {language === 'es' ? 'Testimonios' : 'Testimonials'}
+                        </a>
                     </div>
-                    <button
-                        onClick={() => navigate('/auth')}
-                        className="bg-emerald-500 hover:bg-emerald-400 text-gray-950 font-bold px-6 py-2.5 rounded-full text-sm transition-all hover:shadow-lg hover:shadow-emerald-500/30 active:scale-95"
-                    >
-                        Iniciar Sesión
-                    </button>
+                    <div className="flex items-center space-x-3">
+                        {/* Language Toggle */}
+                        <button
+                            onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+                            className="flex items-center space-x-1.5 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700 px-3 py-2 rounded-full text-sm transition-all"
+                        >
+                            <Globe className="w-4 h-4 text-emerald-400" />
+                            <span className="text-gray-300 font-medium uppercase text-xs">{language}</span>
+                        </button>
+                        <button
+                            onClick={() => navigate('/auth')}
+                            className="bg-emerald-500 hover:bg-emerald-400 text-gray-950 font-bold px-6 py-2.5 rounded-full text-sm transition-all hover:shadow-lg hover:shadow-emerald-500/30 active:scale-95"
+                        >
+                            {language === 'es' ? 'Iniciar Sesión' : 'Sign In'}
+                        </button>
+                    </div>
                 </div>
             </nav>
 
@@ -129,23 +238,23 @@ export const Landing: React.FC = () => {
                         <div className="text-center lg:text-left">
                             <div className="inline-flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-4 py-2 mb-6">
                                 <Zap className="w-4 h-4 text-emerald-400" />
-                                <span className="text-emerald-400 text-sm font-medium">Tecnología Satelital + IA</span>
+                                <span className="text-emerald-400 text-sm font-medium">{t.heroTag}</span>
                             </div>
 
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-                                <span className="text-white">Análisis de suelo y programa de fertilización</span>
+                                <span className="text-white">{t.heroTitle1}</span>
                                 <br />
                                 <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
-                                    en menos de 1 minuto
+                                    {t.heroTitle2}
                                 </span>
                             </h1>
 
                             <p className="text-gray-400 text-lg md:text-xl max-w-xl mx-auto lg:mx-0 mb-6 leading-relaxed">
-                                Combina imágenes satelitales, inteligencia artificial y análisis visual del suelo para recomendar cómo y cuánto fertilizar, según tu cultivo y etapa.
+                                {t.heroSubtitle}
                             </p>
 
                             <div className="flex flex-wrap justify-center lg:justify-start gap-4 mb-8">
-                                {['Sin laboratorio', 'Sin esperas', 'Resultados listos para aplicar'].map((item, i) => (
+                                {t.heroBenefits.map((item, i) => (
                                     <div key={i} className="flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1">
                                         <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                                         <span className="text-emerald-300 text-sm font-medium">{item}</span>
@@ -158,14 +267,14 @@ export const Landing: React.FC = () => {
                                     onClick={() => navigate('/field-editor')}
                                     className="group bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-gray-950 font-bold px-8 py-4 rounded-full text-lg transition-all hover:shadow-xl hover:shadow-emerald-500/30 active:scale-95 flex items-center space-x-2"
                                 >
-                                    <span>Comenzar Gratis</span>
+                                    <span>{t.ctaButton}</span>
                                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </button>
                                 <button className="flex items-center space-x-3 text-gray-300 hover:text-white transition-colors group">
                                     <div className="w-12 h-12 rounded-full border-2 border-gray-600 group-hover:border-emerald-500 flex items-center justify-center transition-colors">
                                         <Play className="w-5 h-5 ml-1" />
                                     </div>
-                                    <span className="font-medium">Ver Demo</span>
+                                    <span className="font-medium">{t.watchDemo}</span>
                                 </button>
                             </div>
                         </div>
@@ -241,10 +350,12 @@ export const Landing: React.FC = () => {
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-20">
                         <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                            Tecnología de <span className="text-emerald-400">vanguardia</span>
+                            {t.featuresTitle} <span className="text-emerald-400">{t.featuresTitleHighlight}</span>
                         </h2>
                         <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                            Herramientas profesionales de agricultura de precisión, ahora accesibles desde tu smartphone.
+                            {language === 'es'
+                                ? 'Herramientas profesionales de agricultura de precisión, ahora accesibles desde tu smartphone.'
+                                : 'Professional precision agriculture tools, now accessible from your smartphone.'}
                         </p>
                     </div>
 
@@ -283,19 +394,26 @@ export const Landing: React.FC = () => {
                 <div className="relative max-w-7xl mx-auto px-6">
                     <div className="text-center mb-20">
                         <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                            ¿Cómo <span className="text-emerald-400">funciona</span>?
+                            {language === 'es' ? '¿Cómo ' : 'How does it '}
+                            <span className="text-emerald-400">{language === 'es' ? 'funciona' : 'work'}</span>?
                         </h2>
                         <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                            En solo 3 pasos, obtén un diagnóstico completo de la salud de tu suelo.
+                            {language === 'es'
+                                ? 'En solo 3 pasos, obtén un diagnóstico completo de la salud de tu suelo.'
+                                : 'In just 3 steps, get a complete diagnosis of your soil health.'}
                         </p>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8">
-                        {[
+                        {(language === 'es' ? [
                             { step: '01', title: 'Dibuja tu Campo', desc: 'Delimita tu parcela en el mapa o sube un archivo GeoJSON. La IA calculará las zonas de muestreo.' },
                             { step: '02', title: 'Toma Fotos del Suelo', desc: 'Sigue la guía de puntos GPS y fotografía las muestras. Nuestra IA analizará cada imagen.' },
                             { step: '03', title: 'Recibe tu Reporte', desc: 'Obtén un informe ejecutivo con diagnóstico, problemas detectados y plan de fertilización.' }
-                        ].map((item, i) => (
+                        ] : [
+                            { step: '01', title: 'Draw Your Field', desc: 'Delimit your plot on the map or upload a GeoJSON file. AI will calculate the sampling zones.' },
+                            { step: '02', title: 'Take Soil Photos', desc: 'Follow the GPS point guide and photograph the samples. Our AI will analyze each image.' },
+                            { step: '03', title: 'Get Your Report', desc: 'Get an executive report with diagnosis, detected problems and fertilization plan.' }
+                        ]).map((item, i) => (
                             <div key={i} className="relative">
                                 <div className="bg-gray-900/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 h-full hover:border-emerald-500/30 transition-colors group">
                                     <span className="text-6xl font-bold text-gray-800 group-hover:text-emerald-900/50 transition-colors">
@@ -318,26 +436,30 @@ export const Landing: React.FC = () => {
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-20">
                         <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                            Lo que dicen nuestros <span className="text-emerald-400">usuarios</span>
+                            {t.testimonialsTitle} <span className="text-emerald-400">{t.testimonialsTitleHighlight}</span>
                         </h2>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-6">
-                        {[
+                        {(language === 'es' ? [
                             { name: 'Carlos Mendoza', role: 'Productor de Maíz, Sinaloa', text: 'TeraLab me ayudó a identificar zonas de estrés hídrico que no podía ver a simple vista. Aumenté mi rendimiento un 15%.' },
                             { name: 'María González', role: 'Agrónoma, Jalisco', text: 'La precisión del análisis de suelos con IA es impresionante. Me ahorra horas de trabajo de campo cada semana.' },
                             { name: 'Roberto Jiménez', role: 'Productor de Aguacate, Michoacán', text: 'Los reportes profesionales me permiten tomar decisiones basadas en datos reales, no en suposiciones.' }
-                        ].map((t, i) => (
+                        ] : [
+                            { name: 'Carlos Mendoza', role: 'Corn Producer, Sinaloa', text: 'TeraLab helped me identify water stress zones I couldn\'t see with the naked eye. I increased my yield by 15%.' },
+                            { name: 'María González', role: 'Agronomist, Jalisco', text: 'The precision of AI soil analysis is impressive. It saves me hours of fieldwork every week.' },
+                            { name: 'Roberto Jiménez', role: 'Avocado Producer, Michoacán', text: 'Professional reports allow me to make decisions based on real data, not assumptions.' }
+                        ]).map((testimonial, i) => (
                             <div key={i} className="bg-gray-900/50 border border-white/10 rounded-3xl p-8">
                                 <div className="flex mb-4">
                                     {[...Array(5)].map((_, j) => (
                                         <Star key={j} className="w-5 h-5 text-amber-400 fill-amber-400" />
                                     ))}
                                 </div>
-                                <p className="text-gray-300 mb-6 leading-relaxed">"{t.text}"</p>
+                                <p className="text-gray-300 mb-6 leading-relaxed">"{testimonial.text}"</p>
                                 <div>
-                                    <p className="font-bold text-white">{t.name}</p>
-                                    <p className="text-sm text-gray-500">{t.role}</p>
+                                    <p className="font-bold text-white">{testimonial.name}</p>
+                                    <p className="text-sm text-gray-500">{testimonial.role}</p>
                                 </div>
                             </div>
                         ))}
@@ -350,23 +472,33 @@ export const Landing: React.FC = () => {
                 <div className="max-w-4xl mx-auto px-6 text-center">
                     <div className="bg-gradient-to-r from-emerald-900/50 to-teal-900/50 border border-emerald-500/30 rounded-3xl p-12 md:p-16">
                         <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                            Obtén tu análisis y plan de fertilización <span className="text-emerald-400">hoy</span>
+                            {language === 'es'
+                                ? <>Obtén tu análisis y plan de fertilización <span className="text-emerald-400">hoy</span></>
+                                : <>Get your analysis and fertilization plan <span className="text-emerald-400">today</span></>}
                         </h2>
                         <p className="text-gray-400 text-lg mb-8 max-w-xl mx-auto">
-                            En menos de 1 minuto, sin laboratorio y sin esperas.
+                            {language === 'es'
+                                ? 'En menos de 1 minuto, sin laboratorio y sin esperas.'
+                                : 'In less than 1 minute, no lab and no waiting.'}
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <button
                                 onClick={() => navigate('/field-editor')}
                                 className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-gray-950 font-bold px-8 py-4 rounded-full text-lg transition-all hover:shadow-xl hover:shadow-emerald-500/30 active:scale-95 flex items-center space-x-2"
                             >
-                                <span>Crear mi Primer Campo</span>
+                                <span>{language === 'es' ? 'Crear mi Primer Campo' : 'Create My First Field'}</span>
                                 <ArrowRight className="w-5 h-5" />
                             </button>
                         </div>
                         <div className="flex items-center justify-center gap-6 mt-8 text-sm text-gray-400">
-                            <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Sin tarjeta de crédito</span>
-                            <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Acceso inmediato</span>
+                            <span className="flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                                {language === 'es' ? 'Sin tarjeta de crédito' : 'No credit card'}
+                            </span>
+                            <span className="flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                                {language === 'es' ? 'Acceso inmediato' : 'Instant access'}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -383,7 +515,7 @@ export const Landing: React.FC = () => {
                             <span className="font-bold"><span className="text-emerald-400">tera</span>lab.app</span>
                         </div>
                         <p className="text-gray-500 text-sm">
-                            © 2024 TeraLab. Agricultura de precisión inteligente.
+                            © 2024 TeraLab. {language === 'es' ? 'Agricultura de precisión inteligente.' : 'Smart precision agriculture.'}
                         </p>
                     </div>
                 </div>
@@ -434,18 +566,18 @@ export const Landing: React.FC = () => {
                             <div className="relative pt-6 pb-4 text-center">
                                 <div className="inline-flex items-center justify-center px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full shadow-lg shadow-emerald-500/30 mb-4">
                                     <Sparkles className="w-5 h-5 text-gray-950 mr-2" />
-                                    <span className="text-2xl font-black text-gray-950 tracking-tight">¡GRATIS!</span>
+                                    <span className="text-2xl font-black text-gray-950 tracking-tight">{t.popupFree}</span>
                                 </div>
                             </div>
 
                             {/* Content */}
                             <div className="relative px-6 pb-6 text-center">
                                 <h2 className="text-xl font-bold text-white mb-3 leading-tight">
-                                    Tu primer análisis de suelo con solo una foto.
+                                    {t.popupTitle}
                                 </h2>
 
                                 <p className="text-gray-400 text-sm mb-6 leading-relaxed">
-                                    Sin laboratorios ni esperas. Recibe el diagnóstico de tu campo en <span className="text-emerald-400 font-semibold">30 segundos</span>.
+                                    {t.popupSubtitle} <span className="text-emerald-400 font-semibold">{t.popupSeconds}</span>.
                                 </p>
 
                                 {/* Visual element */}
@@ -465,7 +597,7 @@ export const Landing: React.FC = () => {
                                     onClick={handlePopupCTA}
                                     className="w-full group bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-gray-950 font-bold py-4 px-6 rounded-xl text-base transition-all hover:shadow-xl hover:shadow-emerald-500/30 active:scale-[0.98] flex items-center justify-center space-x-2"
                                 >
-                                    <span>ANALIZAR MI CAMPO AHORA</span>
+                                    <span>{t.popupCta}</span>
                                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </button>
 
@@ -474,7 +606,7 @@ export const Landing: React.FC = () => {
                                     onClick={() => setShowConversionPopup(false)}
                                     className="mt-4 text-gray-600 hover:text-gray-400 text-xs transition-colors"
                                 >
-                                    No, gracias. Prefiero seguir esperando al laboratorio.
+                                    {t.popupDismiss}
                                 </button>
                             </div>
                         </div>

@@ -5,11 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import { Leaf, Mail, Lock, User, ArrowRight, Loader2, AlertCircle, CheckCircle, KeyRound } from 'lucide-react';
 import PWAInstallModal from '../components/PWAInstallModal';
 import { saveCampaign } from '../services/dataService';
+import { useLanguage } from '../contexts/LanguageContext';
 
 type AuthMode = 'signin' | 'signup' | 'forgot_password' | 'reset_password';
 
 export const Auth: React.FC = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
   const [mode, setMode] = useState<AuthMode>('signin');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'error' | 'success', text: string } | null>(null);
