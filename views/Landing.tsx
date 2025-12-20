@@ -16,7 +16,7 @@ export const Landing: React.FC = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Show conversion popup after 3 seconds
+    // Show conversion popup after 10 seconds (give time to read hero)
     useEffect(() => {
         const timer = setTimeout(() => {
             // Only show if user hasn't seen it before in this session
@@ -24,7 +24,7 @@ export const Landing: React.FC = () => {
                 setShowConversionPopup(true);
                 sessionStorage.setItem('conversionPopupShown', 'true');
             }
-        }, 3000);
+        }, 10000);
         return () => clearTimeout(timer);
     }, []);
 
@@ -264,7 +264,16 @@ export const Landing: React.FC = () => {
 
                             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                                 <button
-                                    onClick={() => navigate('/field-editor')}
+                                    onClick={() => {
+                                        // Track hero CTA click in Google Analytics
+                                        if (typeof window !== 'undefined' && (window as any).gtag) {
+                                            (window as any).gtag('event', 'hero_cta_click', {
+                                                event_category: 'Conversion',
+                                                event_label: 'Hero Start Free Button'
+                                            });
+                                        }
+                                        navigate('/field-editor');
+                                    }}
                                     className="group bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-gray-950 font-bold px-8 py-4 rounded-full text-lg transition-all hover:shadow-xl hover:shadow-emerald-500/30 active:scale-95 flex items-center space-x-2"
                                 >
                                     <span>{t.ctaButton}</span>
